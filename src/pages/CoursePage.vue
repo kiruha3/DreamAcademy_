@@ -76,6 +76,10 @@ function getModuleActionText(status: string) {
   }
 }
 
+function isModuleLocked(_courseModules: any[], targetModule: any) {
+  return targetModule.isLocked === true;
+}
+
 function getContentTypeLabel(contents: any[]) {
   if (!contents?.length) return "—";
   const types = contents.map((c) => c.contentType);
@@ -143,10 +147,18 @@ function getContentTypeLabel(contents: any[]) {
                   </div>
                 </div>
                 <button
+                  v-if="!isModuleLocked(course.modules, module)"
                   @click="router.push(`/module/${module.id}`)"
                   class="ml-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
                 >
                   {{ getModuleActionText(getModuleStatus(module.id)) }}
+                </button>
+                <button
+                  v-else
+                  disabled
+                  class="ml-4 cursor-not-allowed rounded-lg bg-slate-300 px-4 py-2 text-sm font-medium text-slate-600"
+                >
+                  🔒 Заблокировано
                 </button>
               </div>
 

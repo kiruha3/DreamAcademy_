@@ -20,7 +20,17 @@ export const courseRouter = router({
     const publishedVersions = await db.query.programVersions.findMany({
       where: eq(programVersions.status, "published"),
       with: { program: true },
+      orderBy: (pv, { desc }) => [desc(pv.versionNumber)],
     });
+
+    // Deduplicate: keep only the latest published version per program
+    const latestByProgram = new Map<number, typeof publishedVersions[0]>();
+    for (const pv of publishedVersions) {
+      const existing = latestByProgram.get(pv.program.id);
+      if (!existing || pv.versionNumber > existing.versionNumber) {
+        latestByProgram.set(pv.program.id, pv);
+      }
+    }
 
     // Get user enrollments
     const enrollments = await db.query.userProgramEnrollments.findMany({
@@ -31,13 +41,15 @@ export const courseRouter = router({
     });
     const enrolledProgramIds = new Set(enrollments.map((e) => e.programId));
 
-    const items = publishedVersions
+    const isAdmin = ctx.user.role === "admin" || ctx.user.role === "superadmin";
+
+    const items = [...latestByProgram.values()]
       .filter((pv) => {
+        if (isAdmin) return true;
         const target = pv.program.targetAudience;
         return (
-          target === "all" ||
-          target === ctx.user.role ||
-          enrolledProgramIds.has(pv.program.id)
+          enrolledProgramIds.has(pv.program.id) &&
+          (target === "all" || target === ctx.user.role)
         );
       })
       .map((pv) => ({
@@ -87,6 +99,7 @@ export const courseRouter = router({
           eq(programVersions.programId, program.id),
           eq(programVersions.status, "published")
         ),
+        orderBy: (pv, { desc }) => [desc(pv.versionNumber)],
       });
 
       if (!programVersion) {
@@ -101,15 +114,12 @@ export const courseRouter = router({
         orderBy: courses.sortOrder,
       });
 
-      // Get published course versions
+      // Get course versions (latest per course)
       const courseIds = coursesList.map((c) => c.id);
       const courseVersionsList =
         courseIds.length > 0
           ? await db.query.courseVersions.findMany({
-              where: and(
-                inArray(courseVersions.courseId, courseIds),
-                eq(courseVersions.status, "published")
-              ),
+              where: inArray(courseVersions.courseId, courseIds),
             })
           : [];
 
@@ -130,15 +140,12 @@ export const courseRouter = router({
             })
           : [];
 
-      // Get published module versions
+      // Get module versions (latest per module)
       const moduleIds = modulesList.map((m) => m.id);
       const moduleVersionsList =
         moduleIds.length > 0
           ? await db.query.moduleVersions.findMany({
-              where: and(
-                inArray(moduleVersions.moduleId, moduleIds),
-                eq(moduleVersions.status, "published")
-              ),
+              where: inArray(moduleVersions.moduleId, moduleIds),
             })
           : [];
 
@@ -171,29 +178,35 @@ export const courseRouter = router({
         ]);
 
       // Assemble tree
-      const coursesResult = coursesList.map((course) => {
-        const cv = cvByCourse.get(course.id);
-        const courseModules = modulesList
-          .filter((m) => m.courseVersionId === cv?.id)
-          .map((mod) => {
-            const mv = mvByModule.get(mod.id);
-            const contents = contentsList.filter(
-              (c) => c.moduleVersionId === mv?.id
-            );
-            const assessment =
-              moduleAssessmentsList.find(
-                (a) => a.moduleVersionId === mv?.id
-              ) ?? null;
-            return { ...mod, contents, assessment };
-          });
+      const coursesResult = coursesList
+        .map((course) => {
+          const cv = cvByCourse.get(course.id);
+          if (!cv) return null;
 
-        const courseAssessment =
-          courseAssessmentsList.find(
-            (a) => a.courseVersionId === cv?.id
-          ) ?? null;
+          const courseModules = modulesList
+            .filter((m) => m.courseVersionId === cv.id)
+            .map((mod) => {
+              const mv = mvByModule.get(mod.id);
+              if (!mv) return null;
+              const contents = contentsList.filter(
+                (c) => c.moduleVersionId === mv.id
+              );
+              const assessment =
+                moduleAssessmentsList.find(
+                  (a) => a.moduleVersionId === mv.id
+                ) ?? null;
+              return { ...mod, contents, assessment };
+            })
+            .filter((m): m is NonNullable<typeof m> => m !== null);
 
-        return { ...course, modules: courseModules, assessment: courseAssessment };
-      });
+          const courseAssessment =
+            courseAssessmentsList.find(
+              (a) => a.courseVersionId === cv.id
+            ) ?? null;
+
+          return { ...course, modules: courseModules, assessment: courseAssessment };
+        })
+        .filter((c): c is NonNullable<typeof c> => c !== null);
 
       return {
         program,

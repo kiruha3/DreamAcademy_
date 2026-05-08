@@ -27,12 +27,9 @@ export const moduleRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Module not found" });
       }
 
-      // Get published module version
+      // Get latest module version
       const moduleVersion = await db.query.moduleVersions.findFirst({
-        where: and(
-          eq(moduleVersions.moduleId, moduleItem.id),
-          eq(moduleVersions.status, "published")
-        ),
+        where: eq(moduleVersions.moduleId, moduleItem.id),
         orderBy: desc(moduleVersions.versionNumber),
       });
 
@@ -65,12 +62,9 @@ export const moduleRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Module not found" });
       }
 
-      // Get published module version
+      // Get latest module version
       const moduleVersion = await db.query.moduleVersions.findFirst({
-        where: and(
-          eq(moduleVersions.moduleId, moduleItem.id),
-          eq(moduleVersions.status, "published")
-        ),
+        where: eq(moduleVersions.moduleId, moduleItem.id),
         orderBy: desc(moduleVersions.versionNumber),
       });
 
@@ -78,6 +72,14 @@ export const moduleRouter = router({
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "No published version for this module",
+        });
+      }
+
+      // Lock check
+      if (moduleItem.isLocked) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Модуль заблокирован",
         });
       }
 

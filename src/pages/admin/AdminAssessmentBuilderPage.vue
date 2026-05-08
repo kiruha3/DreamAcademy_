@@ -38,6 +38,13 @@ const deleteQuestionMutation = useMutation({
   },
 });
 
+const publishMutation = useMutation({
+  mutationFn: trpc.admin.assessment.publish.mutate,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["admin", "assessment", assessmentId] });
+  },
+});
+
 const updateQuestionMutation = useMutation({
   mutationFn: trpc.admin.question.update.mutate,
   onSuccess: () => {
@@ -168,7 +175,20 @@ const typeLabels: Record<string, string> = {
         </button>
       </div>
 
-      <h1 class="text-2xl font-bold text-slate-900">{{ assessment.title }}</h1>
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-slate-900">{{ assessment.title }}</h1>
+        <button
+          v-if="assessment.versions?.[0]?.status !== 'published'"
+          @click="publishMutation.mutate({ id: assessmentId })"
+          :disabled="publishMutation.isPending.value"
+          class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:opacity-50"
+        >
+          {{ publishMutation.isPending.value ? "Публикация..." : "Опубликовать" }}
+        </button>
+        <span v-else class="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700">
+          Опубликовано
+        </span>
+      </div>
 
       <!-- Assessment Form -->
       <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">

@@ -68,7 +68,7 @@ export const adminModuleRouter = router({
         title: z.string().min(1).max(200),
         description: z.string().optional(),
         moduleType: z.enum(["common", "employee", "partner", "integrator"]).default("common"),
-        isMandatory: z.boolean().default(true),
+        isMandatory: z.boolean().default(false),
         isLocked: z.boolean().default(false),
       })
     )

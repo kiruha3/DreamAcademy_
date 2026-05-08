@@ -36,13 +36,14 @@ const s3PublicUrl = import.meta.env.VITE_S3_PUBLIC_URL ?? "";
 
 function getContentUrl() {
   if (!content.value) return "";
-  if (content.value.contentType === "html_zip" && content.value.s3Key) {
-    return `${s3PublicUrl}/${content.value.s3Key}`;
+  const key = content.value.s3Key;
+  if (!key) return "";
+  // Local extracted content (backend ZIP extraction)
+  if (key.startsWith("content/")) {
+    return `/${key}`;
   }
-  if (content.value.contentType === "pdf" && content.value.s3Key) {
-    return `${s3PublicUrl}/${content.value.s3Key}`;
-  }
-  return "";
+  // S3-hosted content
+  return `${s3PublicUrl}/${key}`;
 }
 
 function getRutubeEmbedUrl() {
@@ -100,13 +101,13 @@ function goNext() {
 
         <!-- Content -->
         <div class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <!-- HTML / PDF -->
+          <!-- HTML ZIP / PDF -->
           <iframe
             v-if="content?.contentType === 'html_zip' || content?.contentType === 'pdf'"
             :src="getContentUrl()"
             class="w-full"
             style="height: 70vh"
-            sandbox="allow-scripts allow-same-origin"
+            :sandbox="content?.contentType === 'html_zip' ? 'allow-scripts' : undefined"
           />
 
           <!-- Rutube -->

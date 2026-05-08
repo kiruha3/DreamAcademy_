@@ -2,7 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { useRoute, useRouter } from "vue-router";
 import { trpc } from "@/lib/trpc";
-import { ref, computed, onUnmounted } from "vue";
+import { ref, computed, onUnmounted, watch } from "vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -109,8 +109,25 @@ function handleRetake() {
   startMutation.mutate({ assessmentId });
 }
 
+function handleBeforeUnload(e: BeforeUnloadEvent) {
+  e.preventDefault();
+  e.returnValue = "Вы проходите тест. Если вы покинете страницу, попытка будет засчитана.";
+}
+
+watch(
+  () => ({ hasAttempt: !!attemptId.value, finished: showResult.value }),
+  ({ hasAttempt, finished }) => {
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+    if (hasAttempt && !finished) {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    }
+  },
+  { immediate: true }
+);
+
 onUnmounted(() => {
   if (timerInterval.value) clearInterval(timerInterval.value);
+  window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 
 const isPassed = computed(() => resultData.value?.isPassed);

@@ -21,6 +21,7 @@
     "@tanstack/vue-query": "^5.45.0",
     "@trpc/client": "^11.0.0-rc.433",
     "@trpc/server": "^11.0.0-rc.433",
+    "adm-zip": "^0.5.17",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "dotenv": "^17.4.2",
@@ -40,6 +41,7 @@
   "devDependencies": {
     "@hono/vite-dev-server": "^0.13.0",
     "@playwright/test": "^1.59.1",
+    "@types/adm-zip": "^0.5.8",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.14.2",
     "@vitejs/plugin-vue": "^5.0.5",

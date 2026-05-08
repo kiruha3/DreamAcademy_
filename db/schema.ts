@@ -196,7 +196,7 @@ export const courses = mysqlTable(
     ])
       .default("all")
       .notNull(),
-    isMandatory: boolean("is_mandatory").default(true).notNull(),
+    isMandatory: boolean("is_mandatory").default(false).notNull(),
     image: text("image"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),

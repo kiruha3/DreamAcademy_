@@ -160,4 +160,24 @@ export const adminAssessmentRouter = router({
       await db.delete(assessments).where(eq(assessments.id, input.id));
       return { success: true };
     }),
+
+  publish: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const latestVersion = await db.query.assessmentVersions.findFirst({
+        where: eq(assessmentVersions.assessmentId, input.id),
+        orderBy: desc(assessmentVersions.versionNumber),
+      });
+
+      if (!latestVersion) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "No version found" });
+      }
+
+      await db
+        .update(assessmentVersions)
+        .set({ status: "published" })
+        .where(eq(assessmentVersions.id, latestVersion.id));
+
+      return { success: true };
+    }),
 });

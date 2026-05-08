@@ -6,8 +6,12 @@ import { createContext } from "./context";
 import { setupStatic } from "./lib/vite";
 import { env } from "./lib/env";
 import { getUserFromCookie, getUserFromHeader } from "./lib/auth";
+import { registerHtmlZipUpload } from "./html-zip-upload";
 
 const app = new Hono();
+
+// HTML ZIP upload endpoint (multipart, not tRPC)
+registerHtmlZipUpload(app);
 
 // Health check
 app.get("/health", (c) => {

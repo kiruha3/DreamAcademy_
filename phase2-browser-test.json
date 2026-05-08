@@ -1,0 +1,46 @@
+[
+  {"action": "goto", "url": "http://localhost:3000/#/login", "wait_until": "networkidle"},
+  {"action": "fill", "selector": "input[type='email']", "text": "admin@dreamdocs.ru"},
+  {"action": "fill", "selector": "input[type='password']", "text": "admin123"},
+  {"action": "click", "selector": "button[type='submit']"},
+  {"action": "wait", "ms": 3000},
+  {"action": "screenshot", "path": "p2_01_logged_in.png", "full_page": true},
+
+  {"action": "goto", "url": "http://localhost:3000/#/admin", "wait_until": "networkidle"},
+  {"action": "wait", "ms": 2000},
+  {"action": "screenshot", "path": "p2_02_admin_dashboard.png", "full_page": true},
+  {"action": "eval", "script": "document.body.innerText.includes('Админ-панель') || document.body.innerText.includes('Дашборд')", "save_as": "admin_dashboard_visible"},
+
+  {"action": "goto", "url": "http://localhost:3000/#/admin/programs", "wait_until": "networkidle"},
+  {"action": "wait", "ms": 2000},
+  {"action": "screenshot", "path": "p2_03_programs_list.png", "full_page": true},
+  {"action": "eval", "script": "document.body.innerText.includes('Программы') && document.body.innerText.includes('Основы DreamDocs')", "save_as": "programs_list_visible"},
+
+  {"action": "click", "selector": "button:has-text('Редактировать')"},
+  {"action": "wait", "ms": 3000},
+  {"action": "screenshot", "path": "p2_04_program_builder.png", "full_page": true},
+  {"action": "eval", "script": "document.body.innerText.includes('Основы DreamDocs') && document.body.innerText.includes('Курсы')", "save_as": "program_builder_visible"},
+
+  {"action": "click", "selector": "button:has-text('Редактировать')"},
+  {"action": "wait", "ms": 3000},
+  {"action": "screenshot", "path": "p2_05_course_builder.png", "full_page": true},
+  {"action": "eval", "script": "document.body.innerText.includes('Начало работы') && document.body.innerText.includes('Модули')", "save_as": "course_builder_visible"},
+
+  {"action": "click", "selector": "button:has-text('Редактировать')"},
+  {"action": "wait", "ms": 3000},
+  {"action": "screenshot", "path": "p2_06_module_builder.png", "full_page": true},
+  {"action": "eval", "script": "document.body.innerText.includes('Введение') && document.body.innerText.includes('HTML ZIP')", "save_as": "module_builder_visible"},
+
+  {"action": "click", "selector": "button:has-text('Rutube')"},
+  {"action": "wait", "ms": 1000},
+  {"action": "screenshot", "path": "p2_07_module_rutube_tab.png", "full_page": true},
+  {"action": "eval", "script": "document.body.innerText.includes('Ссылка на Rutube')", "save_as": "rutube_tab_visible"},
+
+  {"action": "goto", "url": "http://localhost:3000/#/admin/programs", "wait_until": "networkidle"},
+  {"action": "wait", "ms": 2000},
+  {"action": "eval", "script": "localStorage.removeItem('dreamdocs_auth')", "save_as": "clear_auth"},
+  {"action": "goto", "url": "http://localhost:3000/#/login", "wait_until": "networkidle"},
+  {"action": "wait", "ms": 2000},
+  {"action": "screenshot", "path": "p2_08_after_logout.png", "full_page": true},
+  {"action": "eval", "script": "document.body.innerText.includes('Войти') || document.body.innerText.includes('Email')", "save_as": "back_to_login"}
+]

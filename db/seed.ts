@@ -147,7 +147,7 @@ async function seed() {
   await db.insert(moduleContents).values({
     moduleVersionId: moduleVersion1Id,
     contentType: "html_zip",
-    s3Key: "content/intro/index.html",
+    s3Key: "content/modules/1/index.html",
   });
 
   await db.insert(moduleContents).values({

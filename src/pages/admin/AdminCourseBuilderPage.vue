@@ -55,6 +55,26 @@ const deleteModuleMutation = useMutation({
   },
 });
 
+const assessmentsQuery = useQuery({
+  queryKey: ["admin", "assessments", "course", courseId],
+  queryFn: () => {
+    const cvId = course.value?.versions?.[0]?.id;
+    if (!cvId) return Promise.resolve({ items: [] });
+    return trpc.admin.assessment.list.query({ courseVersionId: cvId });
+  },
+  enabled: computed(() => !!course.value?.versions?.[0]?.id),
+});
+
+const createAssessmentMutation = useMutation({
+  mutationFn: trpc.admin.assessment.create.mutate,
+  onSuccess: (data) => {
+    queryClient.invalidateQueries({ queryKey: ["admin", "assessments", "course", courseId] });
+    showAssessmentForm.value = false;
+    resetAssessmentForm();
+    router.push(`/admin/assessments/${data.id}`);
+  },
+});
+
 const showModuleForm = ref(false);
 const newModule = ref({
   title: "",
@@ -63,6 +83,41 @@ const newModule = ref({
   isMandatory: true,
   isLocked: false,
 });
+
+const showAssessmentForm = ref(false);
+const newAssessment = ref({
+  title: "",
+  description: "",
+  assessmentType: "final" as "mini_test" | "final" | "certification",
+  passingScore: 80,
+  maxAttempts: 2,
+  timeLimitMinutes: undefined as number | undefined,
+  showCorrectAnswers: true,
+  allowRetake: false,
+});
+
+function handleCreateAssessment() {
+  const cvId = course.value?.versions?.[0]?.id;
+  if (!cvId) return;
+  createAssessmentMutation.mutate({
+    courseVersionId: cvId,
+    ...newAssessment.value,
+    timeLimitMinutes: newAssessment.value.timeLimitMinutes || undefined,
+  });
+}
+
+function resetAssessmentForm() {
+  newAssessment.value = {
+    title: "",
+    description: "",
+    assessmentType: "final",
+    passingScore: 80,
+    maxAttempts: 2,
+    timeLimitMinutes: undefined,
+    showCorrectAnswers: true,
+    allowRetake: false,
+  };
+}
 
 const editableCourse = computed(() => ({
   id: courseId,
@@ -103,6 +158,19 @@ function moveModule(index: number, direction: number) {
 function handleDeleteModule(id: number) {
   if (confirm("Удалить модуль?")) {
     deleteModuleMutation.mutate({ id });
+  }
+}
+
+const deleteAssessmentMutation = useMutation({
+  mutationFn: trpc.admin.assessment.delete.mutate,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["admin", "assessments", "course", courseId] });
+  },
+});
+
+function handleDeleteAssessment(id: number) {
+  if (confirm("Удалить тест?")) {
+    deleteAssessmentMutation.mutate({ id });
   }
 }
 
@@ -163,6 +231,60 @@ const typeLabels: Record<string, string> = {
         </div>
       </div>
 
+      <!-- Assessments -->
+      <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-slate-900">Тесты курса</h2>
+          <button
+            @click="showAssessmentForm = true"
+            class="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-700"
+          >
+            + Добавить тест
+          </button>
+        </div>
+
+        <div v-if="!assessmentsQuery.data.value?.items?.length" class="py-8 text-center text-slate-500">
+          Нет тестов. Добавьте первый тест.
+        </div>
+
+        <div v-else class="space-y-3">
+          <div
+            v-for="a in assessmentsQuery.data.value?.items"
+            :key="a.id"
+            class="flex items-center justify-between rounded-lg border border-slate-200 p-4 transition hover:border-indigo-200"
+          >
+            <div class="flex-1">
+              <div class="flex items-center gap-3">
+                <h3 class="font-medium text-slate-900">{{ a.title }}</h3>
+                <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                  {{ a.assessmentType === 'mini_test' ? 'Мини-тест' : a.assessmentType === 'final' ? 'Финальный' : 'Сертификация' }}
+                </span>
+                <span v-if="a.versions?.[0]?.status === 'published'" class="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
+                  Опубликован
+                </span>
+                <span v-else class="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
+                  Черновик
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button
+                @click="router.push(`/admin/assessments/${a.id}`)"
+                class="rounded-md bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100"
+              >
+                Редактировать
+              </button>
+              <button
+                @click="handleDeleteAssessment(a.id)"
+                class="rounded-md bg-red-50 px-3 py-1 text-xs font-medium text-red-700 transition hover:bg-red-100"
+              >
+                Удалить
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Modules -->
       <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <div class="mb-4 flex items-center justify-between">
@@ -183,6 +305,7 @@ const typeLabels: Record<string, string> = {
           <div
             v-for="(mod, index) in modulesQuery.data.value?.items"
             :key="mod.id"
+            data-testid="module-item"
             class="flex items-center justify-between rounded-lg border border-slate-200 p-4 transition hover:border-indigo-200"
           >
             <div class="flex-1">
@@ -228,6 +351,73 @@ const typeLabels: Record<string, string> = {
                 Удалить
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Assessment Modal -->
+      <div
+        v-if="showAssessmentForm"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="showAssessmentForm = false"
+      >
+        <div class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
+          <h2 class="mb-4 text-xl font-bold text-slate-900">Добавить тест</h2>
+          <div class="space-y-4">
+            <div>
+              <label class="mb-1 block text-sm font-medium text-slate-700">Название</label>
+              <input v-model="newAssessment.title" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-slate-700">Описание</label>
+              <textarea v-model="newAssessment.description" rows="2" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="mb-1 block text-sm font-medium text-slate-700">Тип</label>
+                <select v-model="newAssessment.assessmentType" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                  <option value="mini_test">Мини-тест</option>
+                  <option value="final">Финальный</option>
+                  <option value="certification">Сертификация</option>
+                </select>
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium text-slate-700">Проходной балл (%)</label>
+                <input v-model.number="newAssessment.passingScore" type="number" min="0" max="100" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="mb-1 block text-sm font-medium text-slate-700">Попыток</label>
+                <input v-model.number="newAssessment.maxAttempts" type="number" min="1" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium text-slate-700">Лимит времени (мин)</label>
+                <input v-model.number="newAssessment.timeLimitMinutes" type="number" min="1" placeholder="Без ограничения" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+              </div>
+            </div>
+            <div class="flex gap-6">
+              <label class="flex items-center gap-2 text-sm text-slate-700">
+                <input v-model="newAssessment.showCorrectAnswers" type="checkbox" class="rounded border-slate-300" />
+                Показывать правильные
+              </label>
+              <label class="flex items-center gap-2 text-sm text-slate-700">
+                <input v-model="newAssessment.allowRetake" type="checkbox" class="rounded border-slate-300" />
+                Разрешить пересдачу
+              </label>
+            </div>
+          </div>
+          <div class="mt-6 flex justify-end gap-3">
+            <button @click="showAssessmentForm = false" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50">
+              Отмена
+            </button>
+            <button
+              @click="handleCreateAssessment"
+              :disabled="!newAssessment.title || createAssessmentMutation.isPending.value"
+              class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {{ createAssessmentMutation.isPending.value ? "Создание..." : "Добавить" }}
+            </button>
           </div>
         </div>
       </div>
