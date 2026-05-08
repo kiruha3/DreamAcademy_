@@ -27,9 +27,12 @@ export const moduleRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Module not found" });
       }
 
-      // Get latest module version
+      // Get latest PUBLISHED module version
       const moduleVersion = await db.query.moduleVersions.findFirst({
-        where: eq(moduleVersions.moduleId, moduleItem.id),
+        where: and(
+          eq(moduleVersions.moduleId, moduleItem.id),
+          eq(moduleVersions.status, "published")
+        ),
         orderBy: desc(moduleVersions.versionNumber),
       });
 

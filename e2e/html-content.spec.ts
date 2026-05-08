@@ -20,8 +20,8 @@ test.describe('HTML Content Module', () => {
     // Take screenshot
     await page.screenshot({ path: 'screenshots/06_html_module.png', fullPage: true });
 
-    // Verify complete button exists
-    await expect(page.locator('button', { hasText: 'Завершить модуль' })).toBeVisible();
+    // Verify action button exists (either "Завершить модуль" or "Пройдено")
+    await expect(page.locator('button', { hasText: /Завершить модуль|Следующий модуль|К программе/ })).toBeVisible();
   });
 
   test('HTML content inside iframe is visible', async ({ page }) => {

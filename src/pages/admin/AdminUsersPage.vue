@@ -13,6 +13,9 @@ const showAssignModal = ref(false);
 const selectedUserId = ref<number | null>(null);
 const selectedProgramId = ref<number | null>(null);
 
+const showCreateModal = ref(false);
+const newUser = ref({ name: '', email: '', password: '', role: 'employee' as const });
+
 const { data, isLoading } = useQuery({
   queryKey: ["admin", "users", "list", search.value, roleFilter.value, offset.value],
   queryFn: () =>
@@ -69,6 +72,21 @@ function handleAssign() {
   }
 }
 
+const createMutation = useMutation({
+  mutationFn: trpc.admin.user.create.mutate,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['admin', 'users', 'list'] });
+    showCreateModal.value = false;
+    newUser.value = { name: '', email: '', password: '', role: 'employee' };
+  },
+});
+
+function handleCreate() {
+  if (newUser.value.name && newUser.value.email && newUser.value.password) {
+    createMutation.mutate({ ...newUser.value });
+  }
+}
+
 const roleLabels: Record<string, string> = {
   user: "Пользователь",
   employee: "Сотрудник",
@@ -90,6 +108,12 @@ const statusLabels: Record<string, { text: string; class: string }> = {
     <div class="space-y-6">
       <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold text-slate-900">Пользователи</h1>
+        <button
+          @click="showCreateModal = true"
+          class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+        >
+          + Создать пользователя
+        </button>
       </div>
 
       <!-- Filters -->
@@ -227,6 +251,69 @@ const statusLabels: Record<string, { text: string; class: string }> = {
             class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
           >
             Назначить
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div
+      v-if="showCreateModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      @click.self="showCreateModal = false"
+    >
+      <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
+        <h3 class="text-lg font-semibold text-slate-900">Создать пользователя</h3>
+        <div class="mt-4 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700">Имя</label>
+            <input
+              v-model="newUser.name"
+              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700">Email</label>
+            <input
+              v-model="newUser.email"
+              type="email"
+              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700">Пароль</label>
+            <input
+              v-model="newUser.password"
+              type="password"
+              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700">Роль</label>
+            <select
+              v-model="newUser.role"
+              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            >
+              <option value="employee">Сотрудник</option>
+              <option value="partner">Партнёр</option>
+              <option value="integrator">Интегратор</option>
+              <option value="admin">Админ</option>
+            </select>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            @click="showCreateModal = false"
+            class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Отмена
+          </button>
+          <button
+            @click="handleCreate"
+            :disabled="!newUser.name || !newUser.email || !newUser.password || createMutation.isPending.value"
+            class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+          >
+            Создать
           </button>
         </div>
       </div>

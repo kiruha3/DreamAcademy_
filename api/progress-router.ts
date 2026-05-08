@@ -88,6 +88,41 @@ export const progressRouter = router({
       };
     }),
 
+  getByModule: authedProcedure
+    .input(z.object({ moduleId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const moduleItem = await db.query.modules.findFirst({
+        where: eq(modules.id, input.moduleId),
+      });
+      if (!moduleItem) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Module not found" });
+      }
+
+      const moduleVersion = await db.query.moduleVersions.findFirst({
+        where: and(
+          eq(moduleVersions.moduleId, input.moduleId),
+          eq(moduleVersions.status, "published")
+        ),
+        orderBy: desc(moduleVersions.versionNumber),
+      });
+
+      if (!moduleVersion) {
+        return { status: "not_started" as const, completedAt: null };
+      }
+
+      const progress = await db.query.moduleProgress.findFirst({
+        where: and(
+          eq(moduleProgress.userId, ctx.user.userId),
+          eq(moduleProgress.moduleVersionId, moduleVersion.id)
+        ),
+      });
+
+      return {
+        status: (progress?.status ?? "not_started") as "not_started" | "in_progress" | "completed",
+        completedAt: progress?.completedAt ?? null,
+      };
+    }),
+
   completeModule: authedProcedure
     .input(z.object({ moduleId: z.number() }))
     .mutation(async ({ ctx, input }) => {

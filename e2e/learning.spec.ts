@@ -1,6 +1,41 @@
 import { test, expect } from '@playwright/test';
 
+async function getAdminToken(request: any): Promise<string> {
+  const loginRes = await request.post('/api/trpc/auth.login', {
+    headers: { 'Content-Type': 'application/json' },
+    data: JSON.stringify({ json: { email: 'admin@dreamdocs.ru', password: 'admin123' } })
+  });
+  const loginData = await loginRes.json();
+  return loginData.result.data.json.token;
+}
+
+async function createTestUser(request: any, adminToken: string) {
+  const ts = Date.now();
+  const email = `learntest${ts}@example.com`;
+  const password = 'testpass123';
+
+  const createRes = await request.post('/api/trpc/admin.user.create', {
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+    data: JSON.stringify({ json: { name: 'Learn Test', email, password, role: 'employee' } })
+  });
+  const createData = await createRes.json();
+  if (!createData.result) {
+    console.error('createUser response:', JSON.stringify(createData));
+    throw new Error('Failed to create user: ' + JSON.stringify(createData));
+  }
+  const userId = createData.result.data.json.id;
+
+  await request.post('/api/trpc/admin.user.assignProgram', {
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+    data: JSON.stringify({ json: { userId, programId: 1 } })
+  });
+
+  return { email, password };
+}
+
 test.describe('Learning Flow', () => {
+  test.describe.configure({ mode: 'serial' });
+
   test.beforeEach(async ({ page }) => {
     // Login as admin
     await page.goto('/#/login');
@@ -27,15 +62,61 @@ test.describe('Learning Flow', () => {
   test('module page shows content', async ({ page }) => {
     await page.goto('/#/module/1');
     await expect(page.locator('h1')).toContainText('Введение');
-    await expect(page.locator('button', { hasText: 'Завершить модуль' })).toBeVisible();
+    // Module page should show either complete button or completed badge
+    await expect(page.locator('button', { hasText: /Завершить модуль|Следующий модуль|К программе/ })).toBeVisible();
   });
 
-  test('complete module and see progress update', async ({ page }) => {
+  test('complete module and see progress update', async ({ browser, request }) => {
+    const adminToken = await getAdminToken(request);
+    const { email, password } = await createTestUser(request, adminToken);
+
+    // Use fresh browser context (no admin cookies)
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    // Login as new user
+    await page.goto('/#/login');
+    await page.fill('input[type="email"]', email);
+    await page.fill('input[type="password"]', password);
+    await page.click('button[type="submit"]');
+    await page.waitForURL('http://localhost:3000/#/');
+
     await page.goto('/#/module/1');
     await expect(page.locator('button', { hasText: 'Завершить модуль' })).toBeVisible();
     await page.click('button:has-text("Завершить модуль")');
     // After completion, should show "✓ Пройдено" or "Следующий модуль"
     await expect(page.locator('text=Пройдено')).toBeVisible({ timeout: 5000 });
+
+    await context.close();
+  });
+
+  test('reopened completed module hides complete button', async ({ browser, request }) => {
+    const adminToken = await getAdminToken(request);
+    const { email, password } = await createTestUser(request, adminToken);
+
+    // Use fresh browser context (no admin cookies)
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    // Login as new user
+    await page.goto('/#/login');
+    await page.fill('input[type="email"]', email);
+    await page.fill('input[type="password"]', password);
+    await page.click('button[type="submit"]');
+    await page.waitForURL('http://localhost:3000/#/');
+
+    await page.goto('/#/module/1');
+    await expect(page.locator('button', { hasText: 'Завершить модуль' })).toBeVisible();
+    await page.click('button:has-text("Завершить модуль")');
+    await expect(page.locator('text=Пройдено')).toBeVisible({ timeout: 5000 });
+
+    // Reload page — should still show "Пройдено", not "Завершить модуль"
+    await page.reload();
+    await expect(page.locator('h1')).toContainText('Введение');
+    await expect(page.locator('button', { hasText: 'Завершить модуль' })).not.toBeVisible();
+    await expect(page.locator('text=Пройдено')).toBeVisible();
+
+    await context.close();
   });
 
   test('prev/next navigation between modules', async ({ page }) => {

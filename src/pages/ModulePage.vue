@@ -14,21 +14,32 @@ const { data, isLoading } = useQuery({
   queryFn: () => trpc.module.getContext.query({ id: moduleId }),
 });
 
+const { data: moduleProgress } = useQuery({
+  queryKey: ["progress", "module", moduleId],
+  queryFn: () => trpc.progress.getByModule.query({ moduleId }),
+});
+
+const localCompleted = ref(false);
+
 const completeMutation = useMutation({
   mutationFn: trpc.progress.completeModule.mutate,
   onSuccess: () => {
+    localCompleted.value = true;
     if (data.value?.program?.id) {
       queryClient.invalidateQueries({
         queryKey: ["progress", data.value.program.id],
       });
     }
-    completed.value = true;
+    queryClient.invalidateQueries({
+      queryKey: ["progress", "module", moduleId],
+    });
+  },
+  onError: (err) => {
+    alert('Ошибка: ' + (err.message || 'Не удалось завершить модуль'));
   },
 });
 
-const completed = ref(false);
-
-const isCompleted = computed(() => completed.value);
+const isCompleted = computed(() => localCompleted.value || moduleProgress.value?.status === "completed");
 
 const content = computed(() => data.value?.contents?.[0] ?? null);
 
@@ -129,11 +140,18 @@ function goNext() {
         <!-- Actions -->
         <div class="flex items-center justify-between">
           <button
-            v-if="data.prevModule"
+            v-if="data.prevModule && !data.prevModule.isLocked"
             @click="router.push(`/module/${data.prevModule.id}`)"
             class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
           >
             ← Предыдущий модуль
+          </button>
+          <button
+            v-else-if="data.prevModule"
+            disabled
+            class="cursor-not-allowed rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-400"
+          >
+            🔒 Предыдущий модуль
           </button>
           <div v-else />
 
