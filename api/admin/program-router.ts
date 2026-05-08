@@ -413,10 +413,91 @@ export const adminProgramRouter = router({
         });
       }
 
-      await db
-        .update(programVersions)
-        .set({ status: "published", publishedAt: new Date() })
-        .where(eq(programVersions.id, input.versionId));
+      await db.transaction(async (tx) => {
+        // 1. Publish program version
+        await tx
+          .update(programVersions)
+          .set({ status: "published", publishedAt: new Date() })
+          .where(eq(programVersions.id, input.versionId));
+
+        // 2. Get all courses in this program version
+        const coursesList = await tx.query.courses.findMany({
+          where: eq(courses.programVersionId, input.versionId),
+        });
+
+        for (const course of coursesList) {
+          // 3. Publish latest course version for each course
+          const latestCourseVersion = await tx.query.courseVersions.findFirst({
+            where: eq(courseVersions.courseId, course.id),
+            orderBy: desc(courseVersions.versionNumber),
+          });
+
+          if (latestCourseVersion) {
+            await tx
+              .update(courseVersions)
+              .set({ status: "published", publishedAt: new Date() })
+              .where(eq(courseVersions.id, latestCourseVersion.id));
+
+            // 4. Get all modules in this course version
+            const modulesList = await tx.query.modules.findMany({
+              where: eq(modules.courseVersionId, latestCourseVersion.id),
+            });
+
+            for (const mod of modulesList) {
+              // 5. Publish latest module version for each module
+              const latestModuleVersion = await tx.query.moduleVersions.findFirst({
+                where: eq(moduleVersions.moduleId, mod.id),
+                orderBy: desc(moduleVersions.versionNumber),
+              });
+
+              if (latestModuleVersion) {
+                await tx
+                  .update(moduleVersions)
+                  .set({ status: "published", publishedAt: new Date() })
+                  .where(eq(moduleVersions.id, latestModuleVersion.id));
+
+                // 6. Publish assessments linked to this module version
+                const moduleAssessments = await tx.query.assessments.findMany({
+                  where: eq(assessments.moduleVersionId, latestModuleVersion.id),
+                });
+
+                for (const assessment of moduleAssessments) {
+                  const latestAssessmentVersion = await tx.query.assessmentVersions.findFirst({
+                    where: eq(assessmentVersions.assessmentId, assessment.id),
+                    orderBy: desc(assessmentVersions.versionNumber),
+                  });
+
+                  if (latestAssessmentVersion) {
+                    await tx
+                      .update(assessmentVersions)
+                      .set({ status: "published", publishedAt: new Date() })
+                      .where(eq(assessmentVersions.id, latestAssessmentVersion.id));
+                  }
+                }
+              }
+            }
+
+            // 7. Publish assessments linked to this course version
+            const courseAssessments = await tx.query.assessments.findMany({
+              where: eq(assessments.courseVersionId, latestCourseVersion.id),
+            });
+
+            for (const assessment of courseAssessments) {
+              const latestAssessmentVersion = await tx.query.assessmentVersions.findFirst({
+                where: eq(assessmentVersions.assessmentId, assessment.id),
+                orderBy: desc(assessmentVersions.versionNumber),
+              });
+
+              if (latestAssessmentVersion) {
+                await tx
+                  .update(assessmentVersions)
+                  .set({ status: "published", publishedAt: new Date() })
+                  .where(eq(assessmentVersions.id, latestAssessmentVersion.id));
+              }
+            }
+          }
+        }
+      });
 
       return { success: true };
     }),

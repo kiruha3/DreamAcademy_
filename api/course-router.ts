@@ -140,12 +140,15 @@ export const courseRouter = router({
             })
           : [];
 
-      // Get module versions (latest per module)
+      // Get module versions (latest PUBLISHED per module)
       const moduleIds = modulesList.map((m) => m.id);
       const moduleVersionsList =
         moduleIds.length > 0
           ? await db.query.moduleVersions.findMany({
-              where: inArray(moduleVersions.moduleId, moduleIds),
+              where: and(
+                inArray(moduleVersions.moduleId, moduleIds),
+                eq(moduleVersions.status, "published")
+              ),
             })
           : [];
 
