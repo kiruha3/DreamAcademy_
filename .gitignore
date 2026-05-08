@@ -1,0 +1,70 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.kimi/
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs & temp
+*.log
+dev-out.log
+dev-err.log
+dev.err
+*.tmp
+*.temp
+
+# Browser-agent screenshots
+*.png
+
+# Playwright
+test-results/
+playwright-report/
+
+# DB
+*.db
+*.sqlite
+*.sqlite3
+
+# Portable MySQL
+mysql/
+mysql.zip
+
+# E2E tests
+e2e/
+
+# Misc temp files
+check_output.txt
+test_utf8.txt
+query
+
+# Analysis temp files
+tz-*.txt
+tz-*.json
+
+# Embedded git repos
+.kimi/skills/temp_skills/
+
+# Test output JSON
+browser-test.json
+debug-*.json
+login-flow.json
+phase1-final-test.json
+
+# Kimi config
+.kimi/
