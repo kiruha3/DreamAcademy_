@@ -7,8 +7,7 @@ const router = useRouter();
 
 function handleCTA() {
   if (auth.user) {
-    // Will go to courses when Phase 3 is ready
-    router.push("/");
+    router.push("/courses");
   } else {
     router.push("/login");
   }

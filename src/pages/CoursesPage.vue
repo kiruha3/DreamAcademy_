@@ -1,0 +1,67 @@
+<script setup lang="ts">
+import { useQuery } from "@tanstack/vue-query";
+import { trpc } from "@/lib/trpc";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+const { data, isLoading } = useQuery({
+  queryKey: ["courses", "list"],
+  queryFn: () => trpc.course.list.query(),
+});
+
+const targetLabels: Record<string, string> = {
+  all: "Все",
+  employee: "Сотрудники",
+  partner: "Партнёры",
+  integrator: "Интеграторы",
+};
+
+const targetBadges: Record<string, string> = {
+  all: "bg-slate-100 text-slate-700",
+  employee: "bg-blue-100 text-blue-700",
+  partner: "bg-purple-100 text-purple-700",
+  integrator: "bg-orange-100 text-orange-700",
+};
+</script>
+
+<template>
+  <div class="min-h-screen bg-slate-50">
+    <div class="mx-auto max-w-6xl px-4 py-8">
+      <h1 class="text-3xl font-bold text-slate-900">Доступные программы</h1>
+      <p class="mt-2 text-slate-600">Выберите программу для начала обучения</p>
+
+      <div v-if="isLoading" class="mt-8 text-center text-slate-500">Загрузка...</div>
+
+      <div v-else-if="!data?.items?.length" class="mt-8 text-center text-slate-500">
+        Нет доступных программ
+      </div>
+
+      <div v-else class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div
+          v-for="program in data.items"
+          :key="program.id"
+          class="cursor-pointer rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+          @click="router.push(`/course/${program.slug}`)"
+        >
+          <div class="flex items-center justify-between">
+            <span
+              class="rounded-full px-2.5 py-0.5 text-xs font-medium"
+              :class="targetBadges[program.targetAudience] ?? 'bg-slate-100 text-slate-700'"
+            >
+              {{ targetLabels[program.targetAudience] ?? program.targetAudience }}
+            </span>
+            <span v-if="program.hasCertification" class="text-lg" title="С сертификатом">🎓</span>
+          </div>
+          <h3 class="mt-3 text-lg font-semibold text-slate-900">{{ program.title }}</h3>
+          <p v-if="program.description" class="mt-1 text-sm text-slate-600 line-clamp-2">
+            {{ program.description }}
+          </p>
+          <div class="mt-4 flex items-center text-sm font-medium text-indigo-600">
+            Перейти →
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

@@ -38,6 +38,55 @@ const deleteQuestionMutation = useMutation({
   },
 });
 
+const updateQuestionMutation = useMutation({
+  mutationFn: trpc.admin.question.update.mutate,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["admin", "assessment", assessmentId] });
+    editingQuestionId.value = null;
+  },
+});
+
+const editingQuestionId = ref<number | null>(null);
+const editQuestion = ref({
+  id: 0,
+  questionText: "",
+  questionType: "single" as "single" | "multiple" | "text",
+  explanation: "",
+  points: 1,
+  options: [] as Array<{ optionText: string; isCorrect: boolean }>,
+});
+
+function startEdit(q: any) {
+  editingQuestionId.value = q.id;
+  editQuestion.value = {
+    id: q.id,
+    questionText: q.questionText,
+    questionType: q.questionType,
+    explanation: q.explanation ?? "",
+    points: q.points,
+    options: q.answerOptions?.map((o: any) => ({ optionText: o.optionText, isCorrect: o.isCorrect })) ?? [],
+  };
+}
+
+function handleUpdateQuestion() {
+  updateQuestionMutation.mutate({
+    id: editQuestion.value.id,
+    questionText: editQuestion.value.questionText,
+    questionType: editQuestion.value.questionType,
+    explanation: editQuestion.value.explanation,
+    points: editQuestion.value.points,
+    options: editQuestion.value.options,
+  });
+}
+
+function addEditOption() {
+  editQuestion.value.options.push({ optionText: "", isCorrect: false });
+}
+
+function removeEditOption(index: number) {
+  editQuestion.value.options.splice(index, 1);
+}
+
 const showQuestionForm = ref(false);
 const newQuestion = ref({
   questionText: "",
@@ -186,7 +235,8 @@ const typeLabels: Record<string, string> = {
             :key="q.id"
             class="rounded-lg border border-slate-200 p-4"
           >
-            <div class="flex items-start justify-between">
+            <!-- View mode -->
+            <div v-if="editingQuestionId !== q.id" class="flex items-start justify-between">
               <div class="flex-1">
                 <div class="flex items-center gap-2">
                   <span class="text-sm font-medium text-slate-400">#{{ idx + 1 }}</span>
@@ -210,12 +260,72 @@ const typeLabels: Record<string, string> = {
                   </div>
                 </div>
               </div>
-              <button
-                @click="handleDeleteQuestion(q.id)"
-                class="ml-4 rounded-md bg-red-50 px-3 py-1 text-xs font-medium text-red-700 transition hover:bg-red-100"
-              >
-                Удалить
-              </button>
+              <div class="ml-4 flex items-center gap-2">
+                <button
+                  @click="startEdit(q)"
+                  class="rounded-md bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100"
+                >
+                  Редактировать
+                </button>
+                <button
+                  @click="handleDeleteQuestion(q.id)"
+                  class="rounded-md bg-red-50 px-3 py-1 text-xs font-medium text-red-700 transition hover:bg-red-100"
+                >
+                  Удалить
+                </button>
+              </div>
+            </div>
+
+            <!-- Edit mode -->
+            <div v-else class="space-y-4">
+              <div>
+                <label class="mb-1 block text-sm font-medium text-slate-700">Текст вопроса</label>
+                <textarea v-model="editQuestion.questionText" rows="2" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"></textarea>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-slate-700">Тип</label>
+                  <select v-model="editQuestion.questionType" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                    <option value="single">Один ответ</option>
+                    <option value="multiple">Несколько ответов</option>
+                    <option value="text">Текстовый ответ</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-slate-700">Баллов</label>
+                  <input v-model.number="editQuestion.points" type="number" min="1" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+                </div>
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium text-slate-700">Пояснение</label>
+                <input v-model="editQuestion.explanation" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+              </div>
+              <div v-if="editQuestion.questionType !== 'text'">
+                <div class="mb-2 flex items-center justify-between">
+                  <label class="text-sm font-medium text-slate-700">Варианты ответа</label>
+                  <button @click="addEditOption" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">+ Добавить вариант</button>
+                </div>
+                <div class="space-y-2">
+                  <div v-for="(opt, idx) in editQuestion.options" :key="idx" class="flex items-center gap-3">
+                    <input v-model="opt.optionText" :placeholder="`Вариант ${idx + 1}`" class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+                    <label class="flex items-center gap-1 text-sm text-slate-700 whitespace-nowrap">
+                      <input v-model="opt.isCorrect" type="checkbox" class="rounded border-slate-300" />
+                      Верный
+                    </label>
+                    <button v-if="editQuestion.options.length > 1" @click="removeEditOption(idx)" class="text-slate-400 hover:text-red-600">✕</button>
+                  </div>
+                </div>
+              </div>
+              <div class="flex justify-end gap-3">
+                <button @click="editingQuestionId = null" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50">Отмена</button>
+                <button
+                  @click="handleUpdateQuestion"
+                  :disabled="!editQuestion.questionText || updateQuestionMutation.isPending.value"
+                  class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {{ updateQuestionMutation.isPending.value ? "Сохранение..." : "Сохранить" }}
+                </button>
+              </div>
             </div>
           </div>
         </div>

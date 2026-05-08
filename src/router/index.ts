@@ -56,6 +56,45 @@ const router = createRouter({
       meta: { requiresAdmin: true },
     },
     {
+      path: "/admin/users",
+      component: () => import("@/pages/admin/AdminUsersPage.vue"),
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/invitations",
+      component: () => import("@/pages/admin/AdminInvitationsPage.vue"),
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/courses",
+      component: () => import("@/pages/CoursesPage.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/course/:slug",
+      component: () => import("@/pages/CoursePage.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/module/:id",
+      component: () => import("@/pages/ModulePage.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/assessment/:id",
+      component: () => import("@/pages/TestPage.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/profile",
+      component: () => import("@/pages/ProfilePage.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/certificate/:number",
+      component: () => import("@/pages/CertificatePage.vue"),
+    },
+    {
       path: "/:pathMatch(.*)*",
       name: "not-found",
       component: () => import("@/pages/NotFoundPage.vue"),

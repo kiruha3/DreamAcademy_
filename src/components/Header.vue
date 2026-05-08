@@ -29,21 +29,23 @@ async function handleLogout() {
           Главная
         </RouterLink>
 
-        <span
+        <RouterLink
           v-if="auth.user"
-          class="text-sm font-medium text-slate-400 cursor-not-allowed"
-          title="Будет доступно в следующих фазах"
+          to="/courses"
+          class="text-sm font-medium text-slate-600 transition hover:text-indigo-600"
+          :class="{ 'text-indigo-600': $route.path.startsWith('/course') || $route.path === '/courses' }"
         >
           Курсы
-        </span>
+        </RouterLink>
 
-        <span
+        <RouterLink
           v-if="auth.user"
-          class="text-sm font-medium text-slate-400 cursor-not-allowed"
-          title="Будет доступно в следующих фазах"
+          to="/profile"
+          class="text-sm font-medium text-slate-600 transition hover:text-indigo-600"
+          :class="{ 'text-indigo-600': $route.path === '/profile' }"
         >
           Профиль
-        </span>
+        </RouterLink>
 
         <RouterLink
           v-if="auth.isAdmin"

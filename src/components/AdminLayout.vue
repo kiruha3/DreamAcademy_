@@ -8,6 +8,8 @@ const sidebarOpen = ref(false);
 const navItems = [
   { path: "/admin", label: "Дашборд", icon: "📊" },
   { path: "/admin/programs", label: "Программы", icon: "📚" },
+  { path: "/admin/users", label: "Пользователи", icon: "👥" },
+  { path: "/admin/invitations", label: "Приглашения", icon: "📧" },
 ];
 
 function isActive(path: string) {
