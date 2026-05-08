@@ -146,26 +146,26 @@ const targetLabels: Record<string, string> = {
 };
 
 const statusLabels: Record<string, { text: string; class: string }> = {
-  draft: { text: "Черновик", class: "bg-yellow-100 text-yellow-700" },
-  published: { text: "Опубликована", class: "bg-green-100 text-green-700" },
-  archived: { text: "Архив", class: "bg-slate-100 text-slate-600" },
+  draft: { text: "Черновик", class: "bg-warning-light text-warning" },
+  published: { text: "Опубликована", class: "bg-success-light text-success" },
+  archived: { text: "Архив", class: "bg-muted text-text-secondary" },
 };
 </script>
 
 <template>
   <AdminLayout>
-    <div v-if="isLoading" class="py-12 text-center text-slate-500">Загрузка...</div>
-    <div v-else-if="!program" class="py-12 text-center text-slate-500">Программа не найдена</div>
+    <div v-if="isLoading" class="py-12 text-center text-text-muted">Загрузка...</div>
+    <div v-else-if="!program" class="py-12 text-center text-text-muted">Программа не найдена</div>
     <div v-else class="mx-auto max-w-5xl space-y-8">
       <!-- Header -->
       <div class="flex items-start justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-slate-900">{{ program.title }}</h1>
+          <h1 class="text-2xl font-bold text-foreground">{{ program.title }}</h1>
           <div class="mt-2 flex items-center gap-3">
             <span :class="['rounded-full px-2.5 py-0.5 text-xs font-medium', statusLabels[latestVersion?.status ?? 'draft'].class]">
               {{ statusLabels[latestVersion?.status ?? 'draft'].text }}
             </span>
-            <span class="text-sm text-slate-500">Версия {{ latestVersion?.versionNumber ?? 1 }}</span>
+            <span class="text-sm text-text-muted">Версия {{ latestVersion?.versionNumber ?? 1 }}</span>
           </div>
         </div>
         <div class="flex gap-2">
@@ -173,14 +173,14 @@ const statusLabels: Record<string, { text: string; class: string }> = {
             v-if="isDraft"
             @click="handlePublish"
             :disabled="publishMutation.isPending.value"
-            class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:opacity-50"
+            class="rounded-lg bg-success px-4 py-2 text-sm font-medium text-text-inverse transition hover:bg-[#16A34A] disabled:opacity-50"
           >
             Опубликовать
           </button>
           <button
             @click="handleNewVersion"
             :disabled="newVersionMutation.isPending.value"
-            class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+            class="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text-secondary transition hover:bg-background disabled:opacity-50"
           >
             Новая версия
           </button>
@@ -188,31 +188,31 @@ const statusLabels: Record<string, { text: string; class: string }> = {
       </div>
 
       <!-- Program Form -->
-      <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 class="mb-4 text-lg font-semibold text-slate-900">Информация о программе</h2>
+      <div class="rounded-xl border border-border bg-surface p-6 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold text-foreground">Информация о программе</h2>
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
-            <label class="mb-1 block text-sm font-medium text-slate-700">Название</label>
-            <input v-model="editableProgram.title" @blur="handleUpdate" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+            <label class="mb-1 block text-sm font-medium text-text-secondary">Название</label>
+            <input v-model="editableProgram.title" @blur="handleUpdate" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Slug</label>
-              <input v-model="editableProgram.slug" @blur="handleUpdate" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+              <label class="mb-1 block text-sm font-medium text-text-secondary">Slug</label>
+              <input v-model="editableProgram.slug" @blur="handleUpdate" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Код</label>
-              <input v-model="editableProgram.code" @blur="handleUpdate" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+              <label class="mb-1 block text-sm font-medium text-text-secondary">Код</label>
+              <input v-model="editableProgram.code" @blur="handleUpdate" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
             </div>
           </div>
           <div class="sm:col-span-2">
-            <label class="mb-1 block text-sm font-medium text-slate-700">Описание</label>
-            <textarea v-model="editableProgram.description" @blur="handleUpdate" rows="2" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"></textarea>
+            <label class="mb-1 block text-sm font-medium text-text-secondary">Описание</label>
+            <textarea v-model="editableProgram.description" @blur="handleUpdate" rows="2" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"></textarea>
           </div>
           <div class="grid grid-cols-2 gap-4 sm:col-span-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Аудитория</label>
-              <select v-model="editableProgram.targetAudience" @change="handleUpdate" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+              <label class="mb-1 block text-sm font-medium text-text-secondary">Аудитория</label>
+              <select v-model="editableProgram.targetAudience" @change="handleUpdate" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none">
                 <option value="all">Все</option>
                 <option value="employee">Сотрудники</option>
                 <option value="partner">Партнёры</option>
@@ -220,8 +220,8 @@ const statusLabels: Record<string, { text: string; class: string }> = {
               </select>
             </div>
             <div class="flex items-end">
-              <label class="flex items-center gap-2 text-sm text-slate-700">
-                <input v-model="editableProgram.hasCertification" @change="handleUpdate" type="checkbox" class="rounded border-slate-300" />
+              <label class="flex items-center gap-2 text-sm text-text-secondary">
+                <input v-model="editableProgram.hasCertification" @change="handleUpdate" type="checkbox" class="rounded border-border" />
                 Есть сертификация
               </label>
             </div>
@@ -230,19 +230,19 @@ const statusLabels: Record<string, { text: string; class: string }> = {
       </div>
 
       <!-- Courses -->
-      <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="rounded-xl border border-border bg-surface p-6 shadow-sm">
         <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-slate-900">Курсы</h2>
+          <h2 class="text-lg font-semibold text-foreground">Курсы</h2>
           <button
             v-if="isDraft"
             @click="showCourseForm = true"
-            class="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-700"
+            class="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-text-inverse transition hover:bg-primary-dark"
           >
             + Добавить курс
           </button>
         </div>
 
-        <div v-if="!coursesQuery.data.value?.items?.length" class="py-8 text-center text-slate-500">
+        <div v-if="!coursesQuery.data.value?.items?.length" class="py-8 text-center text-text-muted">
           Нет курсов. Добавьте первый курс.
         </div>
 
@@ -250,20 +250,20 @@ const statusLabels: Record<string, { text: string; class: string }> = {
           <div
             v-for="(course, index) in coursesQuery.data.value?.items"
             :key="course.id"
-            class="flex items-center justify-between rounded-lg border border-slate-200 p-4 transition hover:border-indigo-200"
+            class="flex items-center justify-between rounded-lg border border-border p-4 transition hover:border-primary-light"
           >
             <div class="flex-1">
               <div class="flex items-center gap-3">
-                <span class="text-sm font-medium text-slate-400">#{{ course.sortOrder }}</span>
-                <h3 class="font-medium text-slate-900">{{ course.title }}</h3>
-                <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                <span class="text-sm font-medium text-text-muted">#{{ course.sortOrder }}</span>
+                <h3 class="font-medium text-foreground">{{ course.title }}</h3>
+                <span class="rounded-full bg-muted px-2 py-0.5 text-xs text-text-secondary">
                   {{ targetLabels[course.targetRole] }}
                 </span>
-                <span v-if="course.isMandatory" class="rounded-full bg-red-50 px-2 py-0.5 text-xs text-red-600">
+                <span v-if="course.isMandatory" class="rounded-full bg-danger-light px-2 py-0.5 text-xs text-danger">
                   Обязательный
                 </span>
               </div>
-              <div v-if="course.description" class="mt-1 text-sm text-slate-500">
+              <div v-if="course.description" class="mt-1 text-sm text-text-muted">
                 {{ course.description }}
               </div>
             </div>
@@ -271,26 +271,26 @@ const statusLabels: Record<string, { text: string; class: string }> = {
               <button
                 @click="moveCourse(index, -1)"
                 :disabled="index === 0"
-                class="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600 transition hover:bg-slate-50 disabled:opacity-30"
+                class="rounded-md border border-border px-2 py-1 text-xs text-text-secondary transition hover:bg-background disabled:opacity-30"
               >
                 ↑
               </button>
               <button
                 @click="moveCourse(index, 1)"
                 :disabled="index === (coursesQuery.data.value?.items?.length ?? 0) - 1"
-                class="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600 transition hover:bg-slate-50 disabled:opacity-30"
+                class="rounded-md border border-border px-2 py-1 text-xs text-text-secondary transition hover:bg-background disabled:opacity-30"
               >
                 ↓
               </button>
               <button
                 @click="router.push(`/admin/courses/${course.id}`)"
-                class="rounded-md bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100"
+                class="rounded-md bg-accent px-3 py-1 text-xs font-medium text-primary-dark transition hover:bg-primary-light"
               >
                 Редактировать
               </button>
               <button
                 @click="handleDeleteCourse(course.id)"
-                class="rounded-md bg-red-50 px-3 py-1 text-xs font-medium text-red-700 transition hover:bg-red-100"
+                class="rounded-md bg-danger-light px-3 py-1 text-xs font-medium text-danger transition hover:bg-danger-light"
               >
                 Удалить
               </button>
@@ -305,25 +305,25 @@ const statusLabels: Record<string, { text: string; class: string }> = {
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showCourseForm = false"
       >
-        <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-          <h2 class="mb-4 text-xl font-bold text-slate-900">Добавить курс</h2>
+        <div class="w-full max-w-lg rounded-xl bg-surface p-6 shadow-xl">
+          <h2 class="mb-4 text-xl font-bold text-foreground">Добавить курс</h2>
           <div class="space-y-4">
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Название</label>
-              <input v-model="newCourse.title" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+              <label class="mb-1 block text-sm font-medium text-text-secondary">Название</label>
+              <input v-model="newCourse.title" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Slug</label>
-              <input v-model="newCourse.slug" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+              <label class="mb-1 block text-sm font-medium text-text-secondary">Slug</label>
+              <input v-model="newCourse.slug" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Описание</label>
-              <textarea v-model="newCourse.description" rows="2" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"></textarea>
+              <label class="mb-1 block text-sm font-medium text-text-secondary">Описание</label>
+              <textarea v-model="newCourse.description" rows="2" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"></textarea>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700">Ролевая ветка</label>
-                <select v-model="newCourse.targetRole" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                <label class="mb-1 block text-sm font-medium text-text-secondary">Ролевая ветка</label>
+                <select v-model="newCourse.targetRole" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none">
                   <option value="all">Все</option>
                   <option value="employee">Сотрудники</option>
                   <option value="partner">Партнёры</option>
@@ -331,21 +331,21 @@ const statusLabels: Record<string, { text: string; class: string }> = {
                 </select>
               </div>
               <div class="flex items-end">
-                <label class="flex items-center gap-2 text-sm text-slate-700">
-                  <input v-model="newCourse.isMandatory" type="checkbox" class="rounded border-slate-300" />
+                <label class="flex items-center gap-2 text-sm text-text-secondary">
+                  <input v-model="newCourse.isMandatory" type="checkbox" class="rounded border-border" />
                   Обязательный
                 </label>
               </div>
             </div>
           </div>
           <div class="mt-6 flex justify-end gap-3">
-            <button @click="showCourseForm = false" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50">
+            <button @click="showCourseForm = false" class="rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary transition hover:bg-background">
               Отмена
             </button>
             <button
               @click="handleCreateCourse"
               :disabled="!newCourse.title || !newCourse.slug || createCourseMutation.isPending.value"
-              class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50"
+              class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse transition hover:bg-primary-dark disabled:opacity-50"
             >
               {{ createCourseMutation.isPending.value ? "Создание..." : "Добавить" }}
             </button>

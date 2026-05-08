@@ -184,37 +184,37 @@ const typeLabels: Record<string, string> = {
 
 <template>
   <AdminLayout>
-    <div v-if="isLoading" class="py-12 text-center text-slate-500">Загрузка...</div>
-    <div v-else-if="!course" class="py-12 text-center text-slate-500">Курс не найден</div>
+    <div v-if="isLoading" class="py-12 text-center text-text-muted">Загрузка...</div>
+    <div v-else-if="!course" class="py-12 text-center text-text-muted">Курс не найден</div>
     <div v-else class="mx-auto max-w-5xl space-y-8">
-      <div class="flex items-center gap-2 text-sm text-slate-500">
-        <button @click="router.push(`/admin/programs/${course.programVersion?.programId}`)" class="hover:text-indigo-600">
+      <div class="flex items-center gap-2 text-sm text-text-muted">
+        <button @click="router.push(`/admin/programs/${course.programVersion?.programId}`)" class="hover:text-primary">
           ← Назад к программе
         </button>
       </div>
 
-      <h1 class="text-2xl font-bold text-slate-900">{{ course.title }}</h1>
+      <h1 class="text-2xl font-bold text-foreground">{{ course.title }}</h1>
 
       <!-- Course Form -->
-      <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 class="mb-4 text-lg font-semibold text-slate-900">Информация о курсе</h2>
+      <div class="rounded-xl border border-border bg-surface p-6 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold text-foreground">Информация о курсе</h2>
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
-            <label class="mb-1 block text-sm font-medium text-slate-700">Название</label>
-            <input v-model="editableCourse.title" @blur="handleUpdate" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+            <label class="mb-1 block text-sm font-medium text-text-secondary">Название</label>
+            <input v-model="editableCourse.title" @blur="handleUpdate" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-slate-700">Slug</label>
-            <input v-model="editableCourse.slug" @blur="handleUpdate" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+            <label class="mb-1 block text-sm font-medium text-text-secondary">Slug</label>
+            <input v-model="editableCourse.slug" @blur="handleUpdate" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
           </div>
           <div class="sm:col-span-2">
-            <label class="mb-1 block text-sm font-medium text-slate-700">Описание</label>
-            <textarea v-model="editableCourse.description" @blur="handleUpdate" rows="2" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"></textarea>
+            <label class="mb-1 block text-sm font-medium text-text-secondary">Описание</label>
+            <textarea v-model="editableCourse.description" @blur="handleUpdate" rows="2" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"></textarea>
           </div>
           <div class="grid grid-cols-2 gap-4 sm:col-span-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Ролевая ветка</label>
-              <select v-model="editableCourse.targetRole" @change="handleUpdate" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+              <label class="mb-1 block text-sm font-medium text-text-secondary">Ролевая ветка</label>
+              <select v-model="editableCourse.targetRole" @change="handleUpdate" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none">
                 <option value="all">Все</option>
                 <option value="employee">Сотрудники</option>
                 <option value="partner">Партнёры</option>
@@ -222,8 +222,8 @@ const typeLabels: Record<string, string> = {
               </select>
             </div>
             <div class="flex items-end">
-              <label class="flex items-center gap-2 text-sm text-slate-700">
-                <input v-model="editableCourse.isMandatory" @change="handleUpdate" type="checkbox" class="rounded border-slate-300" />
+              <label class="flex items-center gap-2 text-sm text-text-secondary">
+                <input v-model="editableCourse.isMandatory" @change="handleUpdate" type="checkbox" class="rounded border-border" />
                 Обязательный
               </label>
             </div>
@@ -232,18 +232,18 @@ const typeLabels: Record<string, string> = {
       </div>
 
       <!-- Assessments -->
-      <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="rounded-xl border border-border bg-surface p-6 shadow-sm">
         <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-slate-900">Тесты курса</h2>
+          <h2 class="text-lg font-semibold text-foreground">Тесты курса</h2>
           <button
             @click="showAssessmentForm = true"
-            class="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-700"
+            class="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-text-inverse transition hover:bg-primary-dark"
           >
             + Добавить тест
           </button>
         </div>
 
-        <div v-if="!assessmentsQuery.data.value?.items?.length" class="py-8 text-center text-slate-500">
+        <div v-if="!assessmentsQuery.data.value?.items?.length" class="py-8 text-center text-text-muted">
           Нет тестов. Добавьте первый тест.
         </div>
 
@@ -251,18 +251,18 @@ const typeLabels: Record<string, string> = {
           <div
             v-for="a in assessmentsQuery.data.value?.items"
             :key="a.id"
-            class="flex items-center justify-between rounded-lg border border-slate-200 p-4 transition hover:border-indigo-200"
+            class="flex items-center justify-between rounded-lg border border-border p-4 transition hover:border-primary-light"
           >
             <div class="flex-1">
               <div class="flex items-center gap-3">
-                <h3 class="font-medium text-slate-900">{{ a.title }}</h3>
-                <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                <h3 class="font-medium text-foreground">{{ a.title }}</h3>
+                <span class="rounded-full bg-muted px-2 py-0.5 text-xs text-text-secondary">
                   {{ a.assessmentType === 'mini_test' ? 'Мини-тест' : a.assessmentType === 'final' ? 'Финальный' : 'Сертификация' }}
                 </span>
-                <span v-if="a.versions?.[0]?.status === 'published'" class="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
+                <span v-if="a.versions?.[0]?.status === 'published'" class="rounded-full bg-success-light px-2 py-0.5 text-xs text-success">
                   Опубликован
                 </span>
-                <span v-else class="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
+                <span v-else class="rounded-full bg-warning-light px-2 py-0.5 text-xs text-warning">
                   Черновик
                 </span>
               </div>
@@ -270,13 +270,13 @@ const typeLabels: Record<string, string> = {
             <div class="flex items-center gap-2">
               <button
                 @click="router.push(`/admin/assessments/${a.id}`)"
-                class="rounded-md bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100"
+                class="rounded-md bg-accent px-3 py-1 text-xs font-medium text-primary-dark transition hover:bg-primary-light"
               >
                 Редактировать
               </button>
               <button
                 @click="handleDeleteAssessment(a.id)"
-                class="rounded-md bg-red-50 px-3 py-1 text-xs font-medium text-red-700 transition hover:bg-red-100"
+                class="rounded-md bg-danger-light px-3 py-1 text-xs font-medium text-danger transition hover:bg-danger-light"
               >
                 Удалить
               </button>
@@ -286,18 +286,18 @@ const typeLabels: Record<string, string> = {
       </div>
 
       <!-- Modules -->
-      <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="rounded-xl border border-border bg-surface p-6 shadow-sm">
         <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-slate-900">Модули</h2>
+          <h2 class="text-lg font-semibold text-foreground">Модули</h2>
           <button
             @click="showModuleForm = true"
-            class="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-700"
+            class="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-text-inverse transition hover:bg-primary-dark"
           >
             + Добавить модуль
           </button>
         </div>
 
-        <div v-if="!modulesQuery.data.value?.items?.length" class="py-8 text-center text-slate-500">
+        <div v-if="!modulesQuery.data.value?.items?.length" class="py-8 text-center text-text-muted">
           Нет модулей. Добавьте первый модуль.
         </div>
 
@@ -306,19 +306,19 @@ const typeLabels: Record<string, string> = {
             v-for="(mod, index) in modulesQuery.data.value?.items"
             :key="mod.id"
             data-testid="module-item"
-            class="flex items-center justify-between rounded-lg border border-slate-200 p-4 transition hover:border-indigo-200"
+            class="flex items-center justify-between rounded-lg border border-border p-4 transition hover:border-primary-light"
           >
             <div class="flex-1">
               <div class="flex items-center gap-3">
-                <span class="text-sm font-medium text-slate-400">#{{ mod.sortOrder }}</span>
-                <h3 class="font-medium text-slate-900">{{ mod.title }}</h3>
-                <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                <span class="text-sm font-medium text-text-muted">#{{ mod.sortOrder }}</span>
+                <h3 class="font-medium text-foreground">{{ mod.title }}</h3>
+                <span class="rounded-full bg-muted px-2 py-0.5 text-xs text-text-secondary">
                   {{ typeLabels[mod.moduleType] }}
                 </span>
-                <span v-if="mod.isMandatory" class="rounded-full bg-red-50 px-2 py-0.5 text-xs text-red-600">
+                <span v-if="mod.isMandatory" class="rounded-full bg-danger-light px-2 py-0.5 text-xs text-danger">
                   Обязательный
                 </span>
-                <span v-if="mod.isLocked" class="rounded-full bg-orange-50 px-2 py-0.5 text-xs text-orange-600">
+                <span v-if="mod.isLocked" class="rounded-full bg-warning-light px-2 py-0.5 text-xs text-warning">
                   🔒 Заблокирован
                 </span>
               </div>
@@ -327,26 +327,26 @@ const typeLabels: Record<string, string> = {
               <button
                 @click="moveModule(index, -1)"
                 :disabled="index === 0"
-                class="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600 transition hover:bg-slate-50 disabled:opacity-30"
+                class="rounded-md border border-border px-2 py-1 text-xs text-text-secondary transition hover:bg-background disabled:opacity-30"
               >
                 ↑
               </button>
               <button
                 @click="moveModule(index, 1)"
                 :disabled="index === (modulesQuery.data.value?.items?.length ?? 0) - 1"
-                class="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600 transition hover:bg-slate-50 disabled:opacity-30"
+                class="rounded-md border border-border px-2 py-1 text-xs text-text-secondary transition hover:bg-background disabled:opacity-30"
               >
                 ↓
               </button>
               <button
                 @click="router.push(`/admin/modules/${mod.id}`)"
-                class="rounded-md bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100"
+                class="rounded-md bg-accent px-3 py-1 text-xs font-medium text-primary-dark transition hover:bg-primary-light"
               >
                 Редактировать
               </button>
               <button
                 @click="handleDeleteModule(mod.id)"
-                class="rounded-md bg-red-50 px-3 py-1 text-xs font-medium text-red-700 transition hover:bg-red-100"
+                class="rounded-md bg-danger-light px-3 py-1 text-xs font-medium text-danger transition hover:bg-danger-light"
               >
                 Удалить
               </button>
@@ -361,60 +361,60 @@ const typeLabels: Record<string, string> = {
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showAssessmentForm = false"
       >
-        <div class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
-          <h2 class="mb-4 text-xl font-bold text-slate-900">Добавить тест</h2>
+        <div class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-surface p-6 shadow-xl">
+          <h2 class="mb-4 text-xl font-bold text-foreground">Добавить тест</h2>
           <div class="space-y-4">
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Название</label>
-              <input v-model="newAssessment.title" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+              <label class="mb-1 block text-sm font-medium text-text-secondary">Название</label>
+              <input v-model="newAssessment.title" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Описание</label>
-              <textarea v-model="newAssessment.description" rows="2" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"></textarea>
+              <label class="mb-1 block text-sm font-medium text-text-secondary">Описание</label>
+              <textarea v-model="newAssessment.description" rows="2" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"></textarea>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700">Тип</label>
-                <select v-model="newAssessment.assessmentType" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                <label class="mb-1 block text-sm font-medium text-text-secondary">Тип</label>
+                <select v-model="newAssessment.assessmentType" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none">
                   <option value="mini_test">Мини-тест</option>
                   <option value="final">Финальный</option>
                   <option value="certification">Сертификация</option>
                 </select>
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700">Проходной балл (%)</label>
-                <input v-model.number="newAssessment.passingScore" type="number" min="0" max="100" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+                <label class="mb-1 block text-sm font-medium text-text-secondary">Проходной балл (%)</label>
+                <input v-model.number="newAssessment.passingScore" type="number" min="0" max="100" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
               </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700">Попыток</label>
-                <input v-model.number="newAssessment.maxAttempts" type="number" min="1" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+                <label class="mb-1 block text-sm font-medium text-text-secondary">Попыток</label>
+                <input v-model.number="newAssessment.maxAttempts" type="number" min="1" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700">Лимит времени (мин)</label>
-                <input v-model.number="newAssessment.timeLimitMinutes" type="number" min="1" placeholder="Без ограничения" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+                <label class="mb-1 block text-sm font-medium text-text-secondary">Лимит времени (мин)</label>
+                <input v-model.number="newAssessment.timeLimitMinutes" type="number" min="1" placeholder="Без ограничения" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
               </div>
             </div>
             <div class="flex gap-6">
-              <label class="flex items-center gap-2 text-sm text-slate-700">
-                <input v-model="newAssessment.showCorrectAnswers" type="checkbox" class="rounded border-slate-300" />
+              <label class="flex items-center gap-2 text-sm text-text-secondary">
+                <input v-model="newAssessment.showCorrectAnswers" type="checkbox" class="rounded border-border" />
                 Показывать правильные
               </label>
-              <label class="flex items-center gap-2 text-sm text-slate-700">
-                <input v-model="newAssessment.allowRetake" type="checkbox" class="rounded border-slate-300" />
+              <label class="flex items-center gap-2 text-sm text-text-secondary">
+                <input v-model="newAssessment.allowRetake" type="checkbox" class="rounded border-border" />
                 Разрешить пересдачу
               </label>
             </div>
           </div>
           <div class="mt-6 flex justify-end gap-3">
-            <button @click="showAssessmentForm = false" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50">
+            <button @click="showAssessmentForm = false" class="rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary transition hover:bg-background">
               Отмена
             </button>
             <button
               @click="handleCreateAssessment"
               :disabled="!newAssessment.title || createAssessmentMutation.isPending.value"
-              class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50"
+              class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse transition hover:bg-primary-dark disabled:opacity-50"
             >
               {{ createAssessmentMutation.isPending.value ? "Создание..." : "Добавить" }}
             </button>
@@ -428,21 +428,21 @@ const typeLabels: Record<string, string> = {
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showModuleForm = false"
       >
-        <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-          <h2 class="mb-4 text-xl font-bold text-slate-900">Добавить модуль</h2>
+        <div class="w-full max-w-lg rounded-xl bg-surface p-6 shadow-xl">
+          <h2 class="mb-4 text-xl font-bold text-foreground">Добавить модуль</h2>
           <div class="space-y-4">
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Название</label>
-              <input v-model="newModule.title" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+              <label class="mb-1 block text-sm font-medium text-text-secondary">Название</label>
+              <input v-model="newModule.title" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Описание</label>
-              <textarea v-model="newModule.description" rows="2" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"></textarea>
+              <label class="mb-1 block text-sm font-medium text-text-secondary">Описание</label>
+              <textarea v-model="newModule.description" rows="2" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"></textarea>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700">Тип</label>
-                <select v-model="newModule.moduleType" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                <label class="mb-1 block text-sm font-medium text-text-secondary">Тип</label>
+                <select v-model="newModule.moduleType" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none">
                   <option value="common">Общий</option>
                   <option value="employee">Сотрудники</option>
                   <option value="partner">Партнёры</option>
@@ -450,25 +450,25 @@ const typeLabels: Record<string, string> = {
                 </select>
               </div>
               <div class="flex flex-col justify-end gap-2">
-                <label class="flex items-center gap-2 text-sm text-slate-700">
-                  <input v-model="newModule.isMandatory" type="checkbox" class="rounded border-slate-300" />
+                <label class="flex items-center gap-2 text-sm text-text-secondary">
+                  <input v-model="newModule.isMandatory" type="checkbox" class="rounded border-border" />
                   Обязательный
                 </label>
-                <label class="flex items-center gap-2 text-sm text-slate-700">
-                  <input v-model="newModule.isLocked" type="checkbox" class="rounded border-slate-300" />
+                <label class="flex items-center gap-2 text-sm text-text-secondary">
+                  <input v-model="newModule.isLocked" type="checkbox" class="rounded border-border" />
                   Заблокирован
                 </label>
               </div>
             </div>
           </div>
           <div class="mt-6 flex justify-end gap-3">
-            <button @click="showModuleForm = false" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50">
+            <button @click="showModuleForm = false" class="rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary transition hover:bg-background">
               Отмена
             </button>
             <button
               @click="handleCreateModule"
               :disabled="!newModule.title || createModuleMutation.isPending.value"
-              class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50"
+              class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse transition hover:bg-primary-dark disabled:opacity-50"
             >
               {{ createModuleMutation.isPending.value ? "Создание..." : "Добавить" }}
             </button>

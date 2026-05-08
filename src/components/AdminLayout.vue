@@ -29,14 +29,14 @@ function isActive(path: string) {
     <!-- Sidebar -->
     <aside
       :class="[
-        'fixed inset-y-0 left-0 z-50 w-64 transform border-r border-slate-200 bg-white transition-transform lg:static lg:translate-x-0',
+        'fixed inset-y-0 left-0 z-50 w-64 transform border-r border-border bg-surface transition-transform lg:static lg:translate-x-0',
         sidebarOpen ? 'translate-x-0' : '-translate-x-full',
       ]"
     >
       <div class="flex h-full flex-col">
         <div class="flex items-center justify-between px-4 py-4">
-          <h2 class="text-lg font-bold text-slate-900">Админ-панель</h2>
-          <button @click="sidebarOpen = false" class="lg:hidden text-slate-500">
+          <h2 class="text-lg font-bold text-foreground">Админ-панель</h2>
+          <button @click="sidebarOpen = false" class="lg:hidden text-text-muted">
             ✕
           </button>
         </div>
@@ -49,8 +49,8 @@ function isActive(path: string) {
             :class="[
               'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition',
               isActive(item.path)
-                ? 'bg-indigo-50 text-indigo-700'
-                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+                ? 'bg-accent text-primary-dark'
+                : 'text-text-secondary hover:bg-background hover:text-foreground',
             ]"
             @click="sidebarOpen = false"
           >
@@ -62,13 +62,13 @@ function isActive(path: string) {
     </aside>
 
     <!-- Main content -->
-    <main class="flex-1 overflow-auto bg-slate-50">
+    <main class="flex-1 overflow-auto bg-background">
       <!-- Mobile header -->
-      <div class="flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-3 lg:hidden">
-        <button @click="sidebarOpen = true" class="text-slate-600">
+      <div class="flex items-center gap-3 border-b border-border bg-surface px-4 py-3 lg:hidden">
+        <button @click="sidebarOpen = true" class="text-text-secondary">
           ☰
         </button>
-        <span class="font-semibold text-slate-900">Админ-панель</span>
+        <span class="font-semibold text-foreground">Админ-панель</span>
       </div>
 
       <div class="p-4 lg:p-8">

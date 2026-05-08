@@ -97,9 +97,9 @@ const roleLabels: Record<string, string> = {
 };
 
 const statusLabels: Record<string, { text: string; class: string }> = {
-  active: { text: "Активен", class: "bg-green-100 text-green-700" },
-  blocked: { text: "Заблокирован", class: "bg-red-100 text-red-700" },
-  pending: { text: "Ожидает", class: "bg-yellow-100 text-yellow-700" },
+  active: { text: "Активен", class: "bg-success-light text-success" },
+  blocked: { text: "Заблокирован", class: "bg-danger-light text-danger" },
+  pending: { text: "Ожидает", class: "bg-warning-light text-warning" },
 };
 </script>
 
@@ -107,10 +107,10 @@ const statusLabels: Record<string, { text: string; class: string }> = {
   <AdminLayout>
     <div class="space-y-6">
       <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-slate-900">Пользователи</h1>
+        <h1 class="text-2xl font-bold text-foreground">Пользователи</h1>
         <button
           @click="showCreateModal = true"
-          class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse hover:bg-primary-dark"
         >
           + Создать пользователя
         </button>
@@ -121,11 +121,11 @@ const statusLabels: Record<string, { text: string; class: string }> = {
         <input
           v-model="search"
           placeholder="Поиск по имени или email..."
-          class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+          class="rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"
         />
         <select
           v-model="roleFilter"
-          class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+          class="rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"
         >
           <option value="">Все роли</option>
           <option value="employee">Сотрудник</option>
@@ -137,9 +137,9 @@ const statusLabels: Record<string, { text: string; class: string }> = {
       </div>
 
       <!-- Table -->
-      <div class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div class="rounded-xl border border-border bg-surface shadow-sm overflow-hidden">
         <table class="w-full text-sm">
-          <thead class="bg-slate-50 text-slate-600">
+          <thead class="bg-background text-text-secondary">
             <tr>
               <th class="px-4 py-3 text-left font-medium">Имя</th>
               <th class="px-4 py-3 text-left font-medium">Email</th>
@@ -148,19 +148,19 @@ const statusLabels: Record<string, { text: string; class: string }> = {
               <th class="px-4 py-3 text-left font-medium">Действия</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100">
-            <tr v-for="user in data?.items ?? []" :key="user.id" class="hover:bg-slate-50">
-              <td class="px-4 py-3 font-medium text-slate-900">{{ user.name }}</td>
-              <td class="px-4 py-3 text-slate-600">{{ user.email }}</td>
+          <tbody class="divide-y divide-border">
+            <tr v-for="user in data?.items ?? []" :key="user.id" class="hover:bg-background">
+              <td class="px-4 py-3 font-medium text-foreground">{{ user.name }}</td>
+              <td class="px-4 py-3 text-text-secondary">{{ user.email }}</td>
               <td class="px-4 py-3">
-                <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+                <span class="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-text-secondary">
                   {{ roleLabels[user.role] ?? user.role }}
                 </span>
               </td>
               <td class="px-4 py-3">
                 <span
                   class="rounded-full px-2 py-0.5 text-xs font-medium"
-                  :class="statusLabels[user.status]?.class ?? 'bg-slate-100 text-slate-600'"
+                  :class="statusLabels[user.status]?.class ?? 'bg-muted text-text-secondary'"
                 >
                   {{ statusLabels[user.status]?.text ?? user.status }}
                 </span>
@@ -170,20 +170,20 @@ const statusLabels: Record<string, { text: string; class: string }> = {
                   <button
                     v-if="user.status !== 'blocked'"
                     @click="blockMutation.mutate({ id: user.id })"
-                    class="rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-100"
+                    class="rounded-md bg-danger-light px-2 py-1 text-xs font-medium text-danger hover:bg-danger-light"
                   >
                     Заблокировать
                   </button>
                   <button
                     v-else
                     @click="unblockMutation.mutate({ id: user.id })"
-                    class="rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-600 hover:bg-green-100"
+                    class="rounded-md bg-success-light px-2 py-1 text-xs font-medium text-success hover:bg-success-light"
                   >
                     Разблокировать
                   </button>
                   <button
                     @click="openAssign(user.id)"
-                    class="rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-100"
+                    class="rounded-md bg-accent px-2 py-1 text-xs font-medium text-primary hover:bg-primary-light"
                   >
                     Назначить программу
                   </button>
@@ -191,7 +191,7 @@ const statusLabels: Record<string, { text: string; class: string }> = {
               </td>
             </tr>
             <tr v-if="!data?.items?.length">
-              <td colspan="5" class="px-4 py-8 text-center text-slate-500">Нет пользователей</td>
+              <td colspan="5" class="px-4 py-8 text-center text-text-muted">Нет пользователей</td>
             </tr>
           </tbody>
         </table>
@@ -202,17 +202,17 @@ const statusLabels: Record<string, { text: string; class: string }> = {
         <button
           @click="offset = Math.max(0, offset - limit)"
           :disabled="offset === 0"
-          class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium disabled:opacity-50"
+          class="rounded-lg border border-border px-3 py-1.5 text-sm font-medium disabled:opacity-50"
         >
           Назад
         </button>
-        <span class="text-sm text-slate-600">
+        <span class="text-sm text-text-secondary">
           {{ offset + 1 }} – {{ Math.min(offset + limit, data?.total ?? 0) }} из {{ data?.total }}
         </span>
         <button
           @click="offset = offset + limit"
           :disabled="offset + limit >= (data?.total ?? 0)"
-          class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium disabled:opacity-50"
+          class="rounded-lg border border-border px-3 py-1.5 text-sm font-medium disabled:opacity-50"
         >
           Вперёд
         </button>
@@ -225,12 +225,12 @@ const statusLabels: Record<string, { text: string; class: string }> = {
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       @click.self="showAssignModal = false"
     >
-      <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
-        <h3 class="text-lg font-semibold text-slate-900">Назначить программу</h3>
+      <div class="w-full max-w-md rounded-xl bg-surface p-6 shadow-lg">
+        <h3 class="text-lg font-semibold text-foreground">Назначить программу</h3>
         <div class="mt-4 space-y-4">
           <select
             v-model="selectedProgramId"
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"
           >
             <option :value="null">Выберите программу</option>
             <option v-for="p in programsData?.items ?? []" :key="p.id" :value="p.id">
@@ -241,14 +241,14 @@ const statusLabels: Record<string, { text: string; class: string }> = {
         <div class="mt-6 flex justify-end gap-3">
           <button
             @click="showAssignModal = false"
-            class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            class="rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-background"
           >
             Отмена
           </button>
           <button
             @click="handleAssign"
             :disabled="!selectedProgramId || assignMutation.isPending.value"
-            class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse hover:bg-primary-dark disabled:opacity-50"
           >
             Назначить
           </button>
@@ -262,37 +262,37 @@ const statusLabels: Record<string, { text: string; class: string }> = {
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       @click.self="showCreateModal = false"
     >
-      <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
-        <h3 class="text-lg font-semibold text-slate-900">Создать пользователя</h3>
+      <div class="w-full max-w-md rounded-xl bg-surface p-6 shadow-lg">
+        <h3 class="text-lg font-semibold text-foreground">Создать пользователя</h3>
         <div class="mt-4 space-y-4">
           <div>
-            <label class="block text-sm font-medium text-slate-700">Имя</label>
+            <label class="block text-sm font-medium text-text-secondary">Имя</label>
             <input
               v-model="newUser.name"
-              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+              class="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700">Email</label>
+            <label class="block text-sm font-medium text-text-secondary">Email</label>
             <input
               v-model="newUser.email"
               type="email"
-              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+              class="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700">Пароль</label>
+            <label class="block text-sm font-medium text-text-secondary">Пароль</label>
             <input
               v-model="newUser.password"
               type="password"
-              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+              class="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700">Роль</label>
+            <label class="block text-sm font-medium text-text-secondary">Роль</label>
             <select
               v-model="newUser.role"
-              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+              class="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"
             >
               <option value="employee">Сотрудник</option>
               <option value="partner">Партнёр</option>
@@ -304,14 +304,14 @@ const statusLabels: Record<string, { text: string; class: string }> = {
         <div class="mt-6 flex justify-end gap-3">
           <button
             @click="showCreateModal = false"
-            class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            class="rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-background"
           >
             Отмена
           </button>
           <button
             @click="handleCreate"
             :disabled="!newUser.name || !newUser.email || !newUser.password || createMutation.isPending.value"
-            class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse hover:bg-primary-dark disabled:opacity-50"
           >
             Создать
           </button>

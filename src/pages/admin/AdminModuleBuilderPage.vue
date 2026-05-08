@@ -210,28 +210,28 @@ const typeLabels: Record<string, string> = {
 
 <template>
   <AdminLayout>
-    <div v-if="isLoading" class="py-12 text-center text-slate-500">Загрузка...</div>
-    <div v-else-if="!moduleItem" class="py-12 text-center text-slate-500">Модуль не найден</div>
+    <div v-if="isLoading" class="py-12 text-center text-text-muted">Загрузка...</div>
+    <div v-else-if="!moduleItem" class="py-12 text-center text-text-muted">Модуль не найден</div>
     <div v-else class="mx-auto max-w-5xl space-y-8">
-      <div class="flex items-center gap-2 text-sm text-slate-500">
-        <button @click="router.push(`/admin/courses/${moduleItem.courseVersion?.courseId}`)" class="hover:text-indigo-600">
+      <div class="flex items-center gap-2 text-sm text-text-muted">
+        <button @click="router.push(`/admin/courses/${moduleItem.courseVersion?.courseId}`)" class="hover:text-primary">
           ← Назад к курсу
         </button>
       </div>
 
-      <h1 class="text-2xl font-bold text-slate-900">{{ moduleItem.title }}</h1>
+      <h1 class="text-2xl font-bold text-foreground">{{ moduleItem.title }}</h1>
 
       <!-- Module Form -->
-      <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 class="mb-4 text-lg font-semibold text-slate-900">Информация о модуле</h2>
+      <div class="rounded-xl border border-border bg-surface p-6 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold text-foreground">Информация о модуле</h2>
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
-            <label class="mb-1 block text-sm font-medium text-slate-700">Название</label>
-            <input v-model="editableModule.title" @blur="handleUpdate" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+            <label class="mb-1 block text-sm font-medium text-text-secondary">Название</label>
+            <input v-model="editableModule.title" @blur="handleUpdate" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-slate-700">Тип</label>
-            <select v-model="editableModule.moduleType" @change="handleUpdate" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+            <label class="mb-1 block text-sm font-medium text-text-secondary">Тип</label>
+            <select v-model="editableModule.moduleType" @change="handleUpdate" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none">
               <option value="common">Общий</option>
               <option value="employee">Сотрудники</option>
               <option value="partner">Партнёры</option>
@@ -239,16 +239,16 @@ const typeLabels: Record<string, string> = {
             </select>
           </div>
           <div class="sm:col-span-2">
-            <label class="mb-1 block text-sm font-medium text-slate-700">Описание</label>
-            <textarea v-model="editableModule.description" @blur="handleUpdate" rows="2" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"></textarea>
+            <label class="mb-1 block text-sm font-medium text-text-secondary">Описание</label>
+            <textarea v-model="editableModule.description" @blur="handleUpdate" rows="2" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"></textarea>
           </div>
           <div class="flex gap-6 sm:col-span-2">
-            <label class="flex items-center gap-2 text-sm text-slate-700">
-              <input v-model="editableModule.isMandatory" @change="handleUpdate" type="checkbox" class="rounded border-slate-300" />
+            <label class="flex items-center gap-2 text-sm text-text-secondary">
+              <input v-model="editableModule.isMandatory" @change="handleUpdate" type="checkbox" class="rounded border-border" />
               Обязательный
             </label>
-            <label class="flex items-center gap-2 text-sm text-slate-700">
-              <input v-model="editableModule.isLocked" @change="handleUpdate" type="checkbox" class="rounded border-slate-300" />
+            <label class="flex items-center gap-2 text-sm text-text-secondary">
+              <input v-model="editableModule.isLocked" @change="handleUpdate" type="checkbox" class="rounded border-border" />
               Заблокирован
             </label>
           </div>
@@ -256,18 +256,18 @@ const typeLabels: Record<string, string> = {
       </div>
 
       <!-- Assessments -->
-      <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="rounded-xl border border-border bg-surface p-6 shadow-sm">
         <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-slate-900">Тесты модуля</h2>
+          <h2 class="text-lg font-semibold text-foreground">Тесты модуля</h2>
           <button
             @click="showAssessmentForm = true"
-            class="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-700"
+            class="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-text-inverse transition hover:bg-primary-dark"
           >
             + Добавить тест
           </button>
         </div>
 
-        <div v-if="!assessmentsQuery.data.value?.items?.length" class="py-8 text-center text-slate-500">
+        <div v-if="!assessmentsQuery.data.value?.items?.length" class="py-8 text-center text-text-muted">
           Нет тестов. Добавьте первый тест.
         </div>
 
@@ -275,18 +275,18 @@ const typeLabels: Record<string, string> = {
           <div
             v-for="a in assessmentsQuery.data.value?.items"
             :key="a.id"
-            class="flex items-center justify-between rounded-lg border border-slate-200 p-4 transition hover:border-indigo-200"
+            class="flex items-center justify-between rounded-lg border border-border p-4 transition hover:border-primary-light"
           >
             <div class="flex-1">
               <div class="flex items-center gap-3">
-                <h3 class="font-medium text-slate-900">{{ a.title }}</h3>
-                <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                <h3 class="font-medium text-foreground">{{ a.title }}</h3>
+                <span class="rounded-full bg-muted px-2 py-0.5 text-xs text-text-secondary">
                   {{ a.assessmentType === 'mini_test' ? 'Мини-тест' : a.assessmentType === 'final' ? 'Финальный' : 'Сертификация' }}
                 </span>
-                <span v-if="a.versions?.[0]?.status === 'published'" class="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
+                <span v-if="a.versions?.[0]?.status === 'published'" class="rounded-full bg-success-light px-2 py-0.5 text-xs text-success">
                   Опубликован
                 </span>
-                <span v-else class="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
+                <span v-else class="rounded-full bg-warning-light px-2 py-0.5 text-xs text-warning">
                   Черновик
                 </span>
               </div>
@@ -294,13 +294,13 @@ const typeLabels: Record<string, string> = {
             <div class="flex items-center gap-2">
               <button
                 @click="router.push(`/admin/assessments/${a.id}`)"
-                class="rounded-md bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100"
+                class="rounded-md bg-accent px-3 py-1 text-xs font-medium text-primary-dark transition hover:bg-primary-light"
               >
                 Редактировать
               </button>
               <button
                 @click="handleDeleteAssessment(a.id)"
-                class="rounded-md bg-red-50 px-3 py-1 text-xs font-medium text-red-700 transition hover:bg-red-100"
+                class="rounded-md bg-danger-light px-3 py-1 text-xs font-medium text-danger transition hover:bg-danger-light"
               >
                 Удалить
               </button>
@@ -310,23 +310,23 @@ const typeLabels: Record<string, string> = {
       </div>
 
       <!-- Content Tabs -->
-      <div class="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div class="flex border-b border-slate-200">
+      <div class="rounded-xl border border-border bg-surface shadow-sm">
+        <div class="flex border-b border-border">
           <button
             @click="activeTab = 'html'"
-            :class="['px-6 py-3 text-sm font-medium transition', activeTab === 'html' ? 'border-b-2 border-indigo-600 text-indigo-700' : 'text-slate-600 hover:text-slate-900']"
+            :class="['px-6 py-3 text-sm font-medium transition', activeTab === 'html' ? 'border-b-2 border-primary text-primary-dark' : 'text-text-secondary hover:text-foreground']"
           >
             HTML ZIP
           </button>
           <button
             @click="activeTab = 'pdf'"
-            :class="['px-6 py-3 text-sm font-medium transition', activeTab === 'pdf' ? 'border-b-2 border-indigo-600 text-indigo-700' : 'text-slate-600 hover:text-slate-900']"
+            :class="['px-6 py-3 text-sm font-medium transition', activeTab === 'pdf' ? 'border-b-2 border-primary text-primary-dark' : 'text-text-secondary hover:text-foreground']"
           >
             PDF
           </button>
           <button
             @click="activeTab = 'rutube'"
-            :class="['px-6 py-3 text-sm font-medium transition', activeTab === 'rutube' ? 'border-b-2 border-indigo-600 text-indigo-700' : 'text-slate-600 hover:text-slate-900']"
+            :class="['px-6 py-3 text-sm font-medium transition', activeTab === 'rutube' ? 'border-b-2 border-primary text-primary-dark' : 'text-text-secondary hover:text-foreground']"
           >
             Rutube
           </button>
@@ -336,8 +336,8 @@ const typeLabels: Record<string, string> = {
           <!-- HTML ZIP -->
           <div v-if="activeTab === 'html'" class="space-y-4">
             <div class="flex items-center justify-between">
-              <h3 class="font-medium text-slate-900">Загрузка HTML ZIP</h3>
-              <span v-if="existingContent?.contentType === 'html_zip'" class="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
+              <h3 class="font-medium text-foreground">Загрузка HTML ZIP</h3>
+              <span v-if="existingContent?.contentType === 'html_zip'" class="rounded-full bg-success-light px-2 py-0.5 text-xs text-success">
                 Загружено
               </span>
             </div>
@@ -346,17 +346,17 @@ const typeLabels: Record<string, string> = {
               type="file"
               accept=".zip"
               @change="handleFileUpload($event, 'html_zip')"
-              class="block w-full text-sm text-slate-500 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-indigo-700 hover:file:bg-indigo-100"
+              class="block w-full text-sm text-text-muted file:mr-4 file:rounded-lg file:border-0 file:bg-accent file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary-dark hover:file:bg-primary-light"
             />
-            <p class="text-xs text-slate-500">Максимальный размер: 50 МБ. Архив должен содержать index.html в корне.</p>
-            <div v-if="isUploading" class="text-sm text-indigo-600">Загрузка...</div>
+            <p class="text-xs text-text-muted">Максимальный размер: 50 МБ. Архив должен содержать index.html в корне.</p>
+            <div v-if="isUploading" class="text-sm text-primary">Загрузка...</div>
           </div>
 
           <!-- PDF -->
           <div v-if="activeTab === 'pdf'" class="space-y-4">
             <div class="flex items-center justify-between">
-              <h3 class="font-medium text-slate-900">Загрузка PDF</h3>
-              <span v-if="existingContent?.contentType === 'pdf'" class="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
+              <h3 class="font-medium text-foreground">Загрузка PDF</h3>
+              <span v-if="existingContent?.contentType === 'pdf'" class="rounded-full bg-success-light px-2 py-0.5 text-xs text-success">
                 Загружено
               </span>
             </div>
@@ -364,34 +364,34 @@ const typeLabels: Record<string, string> = {
               type="file"
               accept=".pdf"
               @change="handleFileUpload($event, 'pdf')"
-              class="block w-full text-sm text-slate-500 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-indigo-700 hover:file:bg-indigo-100"
+              class="block w-full text-sm text-text-muted file:mr-4 file:rounded-lg file:border-0 file:bg-accent file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary-dark hover:file:bg-primary-light"
             />
-            <p class="text-xs text-slate-500">Максимальный размер: 10 МБ.</p>
-            <div v-if="isUploading" class="text-sm text-indigo-600">Загрузка...</div>
+            <p class="text-xs text-text-muted">Максимальный размер: 10 МБ.</p>
+            <div v-if="isUploading" class="text-sm text-primary">Загрузка...</div>
           </div>
 
           <!-- Rutube -->
           <div v-if="activeTab === 'rutube'" class="space-y-4">
-            <h3 class="font-medium text-slate-900">Ссылка на Rutube</h3>
+            <h3 class="font-medium text-foreground">Ссылка на Rutube</h3>
             <div class="flex gap-3">
               <input
                 v-model="rutubeUrl"
                 placeholder="https://rutube.ru/video/..."
-                class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                class="flex-1 rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"
               />
               <button
                 @click="handleRutubeSave"
                 :disabled="!rutubeUrl || contentMutation.isPending.value"
-                class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50"
+                class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse transition hover:bg-primary-dark disabled:opacity-50"
               >
                 Сохранить
               </button>
             </div>
-            <p class="text-xs text-slate-500">Вставьте прямую ссылку на видео Rutube.</p>
+            <p class="text-xs text-text-muted">Вставьте прямую ссылку на видео Rutube.</p>
 
             <!-- Preview -->
             <div v-if="rutubeVideoId" class="mt-4">
-              <h4 class="mb-2 text-sm font-medium text-slate-700">Предпросмотр</h4>
+              <h4 class="mb-2 text-sm font-medium text-text-secondary">Предпросмотр</h4>
               <iframe
                 :src="`https://rutube.ru/play/embed/${rutubeVideoId}`"
                 width="100%"
@@ -411,60 +411,60 @@ const typeLabels: Record<string, string> = {
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showAssessmentForm = false"
       >
-        <div class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
-          <h2 class="mb-4 text-xl font-bold text-slate-900">Добавить тест</h2>
+        <div class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-surface p-6 shadow-xl">
+          <h2 class="mb-4 text-xl font-bold text-foreground">Добавить тест</h2>
           <div class="space-y-4">
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Название</label>
-              <input v-model="newAssessment.title" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+              <label class="mb-1 block text-sm font-medium text-text-secondary">Название</label>
+              <input v-model="newAssessment.title" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">Описание</label>
-              <textarea v-model="newAssessment.description" rows="2" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"></textarea>
+              <label class="mb-1 block text-sm font-medium text-text-secondary">Описание</label>
+              <textarea v-model="newAssessment.description" rows="2" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"></textarea>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700">Тип</label>
-                <select v-model="newAssessment.assessmentType" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                <label class="mb-1 block text-sm font-medium text-text-secondary">Тип</label>
+                <select v-model="newAssessment.assessmentType" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none">
                   <option value="mini_test">Мини-тест</option>
                   <option value="final">Финальный</option>
                   <option value="certification">Сертификация</option>
                 </select>
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700">Проходной балл (%)</label>
-                <input v-model.number="newAssessment.passingScore" type="number" min="0" max="100" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+                <label class="mb-1 block text-sm font-medium text-text-secondary">Проходной балл (%)</label>
+                <input v-model.number="newAssessment.passingScore" type="number" min="0" max="100" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
               </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700">Попыток</label>
-                <input v-model.number="newAssessment.maxAttempts" type="number" min="1" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+                <label class="mb-1 block text-sm font-medium text-text-secondary">Попыток</label>
+                <input v-model.number="newAssessment.maxAttempts" type="number" min="1" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700">Лимит времени (мин)</label>
-                <input v-model.number="newAssessment.timeLimitMinutes" type="number" min="1" placeholder="Без ограничения" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
+                <label class="mb-1 block text-sm font-medium text-text-secondary">Лимит времени (мин)</label>
+                <input v-model.number="newAssessment.timeLimitMinutes" type="number" min="1" placeholder="Без ограничения" class="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none" />
               </div>
             </div>
             <div class="flex gap-6">
-              <label class="flex items-center gap-2 text-sm text-slate-700">
-                <input v-model="newAssessment.showCorrectAnswers" type="checkbox" class="rounded border-slate-300" />
+              <label class="flex items-center gap-2 text-sm text-text-secondary">
+                <input v-model="newAssessment.showCorrectAnswers" type="checkbox" class="rounded border-border" />
                 Показывать правильные
               </label>
-              <label class="flex items-center gap-2 text-sm text-slate-700">
-                <input v-model="newAssessment.allowRetake" type="checkbox" class="rounded border-slate-300" />
+              <label class="flex items-center gap-2 text-sm text-text-secondary">
+                <input v-model="newAssessment.allowRetake" type="checkbox" class="rounded border-border" />
                 Разрешить пересдачу
               </label>
             </div>
           </div>
           <div class="mt-6 flex justify-end gap-3">
-            <button @click="showAssessmentForm = false" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50">
+            <button @click="showAssessmentForm = false" class="rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary transition hover:bg-background">
               Отмена
             </button>
             <button
               @click="handleCreateAssessment"
               :disabled="!newAssessment.title || createAssessmentMutation.isPending.value"
-              class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50"
+              class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse transition hover:bg-primary-dark disabled:opacity-50"
             >
               {{ createAssessmentMutation.isPending.value ? "Создание..." : "Добавить" }}
             </button>

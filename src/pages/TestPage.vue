@@ -134,20 +134,20 @@ const isPassed = computed(() => resultData.value?.isPassed);
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50">
+  <div class="min-h-screen bg-background">
     <div class="mx-auto max-w-3xl px-4 py-8">
-      <div v-if="isLoading" class="text-center text-slate-500">Загрузка...</div>
-      <div v-else-if="!assessmentData" class="text-center text-slate-500">Тест не найден</div>
+      <div v-if="isLoading" class="text-center text-text-muted">Загрузка...</div>
+      <div v-else-if="!assessmentData" class="text-center text-text-muted">Тест не найден</div>
       <div v-else class="space-y-6">
         <!-- Header -->
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-2xl font-bold text-slate-900">{{ assessment?.title }}</h1>
-            <p v-if="assessment?.description" class="mt-1 text-slate-600">
+            <h1 class="text-2xl font-bold text-foreground">{{ assessment?.title }}</h1>
+            <p v-if="assessment?.description" class="mt-1 text-text-secondary">
               {{ assessment.description }}
             </p>
           </div>
-          <div v-if="timeLeft > 0" class="rounded-lg bg-slate-100 px-4 py-2 font-mono text-lg">
+          <div v-if="timeLeft > 0" class="rounded-lg bg-muted px-4 py-2 font-mono text-lg">
             {{ formatTime(timeLeft) }}
           </div>
         </div>
@@ -155,19 +155,19 @@ const isPassed = computed(() => resultData.value?.isPassed);
         <!-- Start screen -->
         <div
           v-if="!attemptId && !showResult"
-          class="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm"
+          class="rounded-xl border border-border bg-surface p-8 text-center shadow-sm"
         >
-          <p class="text-slate-600">
+          <p class="text-text-secondary">
             Вопросов: {{ questions.length }} • Проходной балл:
             {{ assessment?.passingScore }}% • Попыток: {{ assessment?.maxAttempts }}
           </p>
-          <p v-if="assessment?.timeLimitMinutes" class="mt-1 text-slate-600">
+          <p v-if="assessment?.timeLimitMinutes" class="mt-1 text-text-secondary">
             Лимит времени: {{ assessment.timeLimitMinutes }} мин
           </p>
           <button
             @click="handleStart"
             :disabled="startMutation.isPending.value"
-            class="mt-6 rounded-lg bg-indigo-600 px-8 py-3 text-base font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50"
+            class="mt-6 rounded-lg bg-primary px-8 py-3 text-base font-medium text-text-inverse transition hover:bg-primary-dark disabled:opacity-50"
           >
             {{ startMutation.isPending.value ? "Загрузка..." : "Начать тест" }}
           </button>
@@ -178,21 +178,21 @@ const isPassed = computed(() => resultData.value?.isPassed);
           <div
             v-for="(q, idx) in questions"
             :key="q.id"
-            class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
+            class="rounded-xl border border-border bg-surface p-6 shadow-sm"
           >
             <div class="flex items-center gap-2">
-              <span class="text-sm font-medium text-slate-400">Вопрос {{ idx + 1 }}</span>
-              <span class="text-xs text-slate-500">{{ q.points }} балл</span>
+              <span class="text-sm font-medium text-text-muted">Вопрос {{ idx + 1 }}</span>
+              <span class="text-xs text-text-muted">{{ q.points }} балл</span>
             </div>
-            <p class="mt-2 text-lg font-medium text-slate-900">{{ q.questionText }}</p>
+            <p class="mt-2 text-lg font-medium text-foreground">{{ q.questionText }}</p>
 
             <div class="mt-4 space-y-2">
               <label
                 v-for="opt in q.options"
                 :key="opt.id"
-                class="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 p-3 transition hover:bg-slate-50"
+                class="flex cursor-pointer items-center gap-3 rounded-lg border border-border p-3 transition hover:bg-background"
                 :class="{
-                  'border-indigo-300 bg-indigo-50': answers[q.id]?.includes(opt.id),
+                  'border-primary bg-accent': answers[q.id]?.includes(opt.id),
                 }"
               >
                 <input
@@ -200,9 +200,9 @@ const isPassed = computed(() => resultData.value?.isPassed);
                   :name="`question-${q.id}`"
                   :checked="answers[q.id]?.includes(opt.id)"
                   @change="toggleOption(q.id, opt.id, q.questionType)"
-                  class="h-4 w-4 text-indigo-600"
+                  class="h-4 w-4 text-primary"
                 />
-                <span class="text-slate-700">{{ opt.optionText }}</span>
+                <span class="text-text-secondary">{{ opt.optionText }}</span>
               </label>
             </div>
           </div>
@@ -211,7 +211,7 @@ const isPassed = computed(() => resultData.value?.isPassed);
             <button
               @click="handleSubmit"
               :disabled="submitMutation.isPending.value"
-              class="rounded-lg bg-indigo-600 px-8 py-3 text-base font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50"
+              class="rounded-lg bg-primary px-8 py-3 text-base font-medium text-text-inverse transition hover:bg-primary-dark disabled:opacity-50"
             >
               {{ submitMutation.isPending.value ? "Отправка..." : "Завершить тест" }}
             </button>
@@ -219,27 +219,27 @@ const isPassed = computed(() => resultData.value?.isPassed);
         </div>
 
         <!-- Result -->
-        <div v-else-if="showResult && resultData" class="rounded-xl border border-slate-200 bg-white p-8 shadow-sm text-center">
+        <div v-else-if="showResult && resultData" class="rounded-xl border border-border bg-surface p-8 shadow-sm text-center">
           <div
             class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full text-3xl"
-            :class="isPassed ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'"
+            :class="isPassed ? 'bg-success-light text-success' : 'bg-danger-light text-danger'"
           >
             {{ isPassed ? "✓" : "✕" }}
           </div>
-          <h2 class="text-2xl font-bold" :class="isPassed ? 'text-green-700' : 'text-red-700'">
+          <h2 class="text-2xl font-bold" :class="isPassed ? 'text-success' : 'text-danger'">
             {{ isPassed ? "Тест пройден!" : "Тест не пройден" }}
           </h2>
-          <p class="mt-2 text-lg text-slate-600">
+          <p class="mt-2 text-lg text-text-secondary">
             Результат: {{ resultData.score }}% ({{ resultData.earnedPoints }} / {{ resultData.maxScore }} баллов)
           </p>
-          <p class="text-sm text-slate-500">
+          <p class="text-sm text-text-muted">
             Проходной балл: {{ assessment?.passingScore }}%
           </p>
 
           <div v-if="assessment?.allowRetake" class="mt-6">
             <button
               @click="handleRetake"
-              class="rounded-lg border border-slate-300 px-6 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+              class="rounded-lg border border-border px-6 py-2 text-sm font-medium text-text-secondary transition hover:bg-background"
             >
               Пересдать
             </button>
@@ -248,7 +248,7 @@ const isPassed = computed(() => resultData.value?.isPassed);
           <div class="mt-6">
             <button
               @click="router.push('/courses')"
-              class="rounded-lg bg-indigo-600 px-6 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
+              class="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-text-inverse transition hover:bg-primary-dark"
             >
               К программам
             </button>

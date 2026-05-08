@@ -18,22 +18,22 @@ const targetLabels: Record<string, string> = {
 };
 
 const targetBadges: Record<string, string> = {
-  all: "bg-slate-100 text-slate-700",
-  employee: "bg-blue-100 text-blue-700",
-  partner: "bg-purple-100 text-purple-700",
-  integrator: "bg-orange-100 text-orange-700",
+  all: "bg-muted text-text-secondary",
+  employee: "bg-info-light text-info",
+  partner: "bg-[#F3E8FF] text-[#9333EA]",
+  integrator: "bg-warning-light text-warning",
 };
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50">
+  <div class="min-h-screen bg-background">
     <div class="mx-auto max-w-6xl px-4 py-8">
-      <h1 class="text-3xl font-bold text-slate-900">Доступные программы</h1>
-      <p class="mt-2 text-slate-600">Выберите программу для начала обучения</p>
+      <h1 class="text-3xl font-bold text-foreground">Доступные программы</h1>
+      <p class="mt-2 text-text-secondary">Выберите программу для начала обучения</p>
 
-      <div v-if="isLoading" class="mt-8 text-center text-slate-500">Загрузка...</div>
+      <div v-if="isLoading" class="mt-8 text-center text-text-muted">Загрузка...</div>
 
-      <div v-else-if="!data?.items?.length" class="mt-8 text-center text-slate-500">
+      <div v-else-if="!data?.items?.length" class="mt-8 text-center text-text-muted">
         Нет доступных программ
       </div>
 
@@ -41,23 +41,23 @@ const targetBadges: Record<string, string> = {
         <div
           v-for="program in data.items"
           :key="program.id"
-          class="cursor-pointer rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+          class="cursor-pointer rounded-xl border border-border bg-surface p-6 shadow-sm transition hover:shadow-md"
           @click="router.push(`/course/${program.slug}`)"
         >
           <div class="flex items-center justify-between">
             <span
               class="rounded-full px-2.5 py-0.5 text-xs font-medium"
-              :class="targetBadges[program.targetAudience] ?? 'bg-slate-100 text-slate-700'"
+              :class="targetBadges[program.targetAudience] ?? 'bg-muted text-text-secondary'"
             >
               {{ targetLabels[program.targetAudience] ?? program.targetAudience }}
             </span>
             <span v-if="program.hasCertification" class="text-lg" title="С сертификатом">🎓</span>
           </div>
-          <h3 class="mt-3 text-lg font-semibold text-slate-900">{{ program.title }}</h3>
-          <p v-if="program.description" class="mt-1 text-sm text-slate-600 line-clamp-2">
+          <h3 class="mt-3 text-lg font-semibold text-foreground">{{ program.title }}</h3>
+          <p v-if="program.description" class="mt-1 text-sm text-text-secondary line-clamp-2">
             {{ program.description }}
           </p>
-          <div class="mt-4 flex items-center text-sm font-medium text-indigo-600">
+          <div class="mt-4 flex items-center text-sm font-medium text-primary">
             Перейти →
           </div>
         </div>

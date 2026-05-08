@@ -12,10 +12,10 @@ async function handleLogout() {
 </script>
 
 <template>
-  <header class="border-b border-slate-200 bg-white">
+  <header class="border-b border-border bg-surface">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
       <!-- Logo -->
-      <RouterLink to="/" class="text-xl font-bold text-indigo-600">
+      <RouterLink to="/" class="text-xl font-bold text-primary">
         DreamDocs Academy
       </RouterLink>
 
@@ -23,8 +23,8 @@ async function handleLogout() {
       <nav class="flex items-center gap-6">
         <RouterLink
           to="/"
-          class="text-sm font-medium text-slate-600 transition hover:text-indigo-600"
-          :class="{ 'text-indigo-600': $route.path === '/' }"
+          class="text-sm font-medium text-text-secondary transition hover:text-primary"
+          :class="{ 'text-primary': $route.path === '/' }"
         >
           Главная
         </RouterLink>
@@ -32,8 +32,8 @@ async function handleLogout() {
         <RouterLink
           v-if="auth.user"
           to="/courses"
-          class="text-sm font-medium text-slate-600 transition hover:text-indigo-600"
-          :class="{ 'text-indigo-600': $route.path.startsWith('/course') || $route.path === '/courses' }"
+          class="text-sm font-medium text-text-secondary transition hover:text-primary"
+          :class="{ 'text-primary': $route.path.startsWith('/course') || $route.path === '/courses' }"
         >
           Курсы
         </RouterLink>
@@ -41,8 +41,8 @@ async function handleLogout() {
         <RouterLink
           v-if="auth.user"
           to="/profile"
-          class="text-sm font-medium text-slate-600 transition hover:text-indigo-600"
-          :class="{ 'text-indigo-600': $route.path === '/profile' }"
+          class="text-sm font-medium text-text-secondary transition hover:text-primary"
+          :class="{ 'text-primary': $route.path === '/profile' }"
         >
           Профиль
         </RouterLink>
@@ -50,8 +50,8 @@ async function handleLogout() {
         <RouterLink
           v-if="auth.isAdmin"
           to="/admin"
-          class="text-sm font-medium text-slate-600 transition hover:text-indigo-600"
-          :class="{ 'text-indigo-600': $route.path.startsWith('/admin') }"
+          class="text-sm font-medium text-text-secondary transition hover:text-primary"
+          :class="{ 'text-primary': $route.path.startsWith('/admin') }"
         >
           Админка
         </RouterLink>
@@ -60,24 +60,24 @@ async function handleLogout() {
       <!-- Auth state -->
       <div class="flex items-center gap-4">
         <template v-if="auth.user">
-          <span class="text-sm text-slate-600">
+          <span class="text-sm text-text-secondary">
             {{ auth.user.name }}
             <span
               v-if="auth.isSuperAdmin"
-              class="ml-1 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700"
+              class="ml-1 rounded-full bg-primary-light px-2 py-0.5 text-xs font-medium text-primary-dark"
             >
               superadmin
             </span>
             <span
               v-else-if="auth.isAdmin"
-              class="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600"
+              class="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-text-secondary"
             >
               admin
             </span>
           </span>
           <button
             @click="handleLogout"
-            class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+            class="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-text-secondary transition hover:bg-background"
           >
             Выйти
           </button>
@@ -86,7 +86,7 @@ async function handleLogout() {
         <template v-else>
           <RouterLink
             to="/login"
-            class="rounded-lg bg-indigo-600 px-4 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-700"
+            class="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-text-inverse transition hover:bg-primary-dark"
           >
             Войти
           </RouterLink>

@@ -85,22 +85,22 @@ async function handleInvitation() {
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-    <div class="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+  <div class="flex min-h-screen items-center justify-center bg-background px-4">
+    <div class="w-full max-w-md rounded-xl border border-border bg-surface p-8 shadow-sm">
       <div class="mb-6 text-center">
-        <h1 class="text-2xl font-bold text-slate-900">DreamDocs Academy</h1>
-        <p class="mt-2 text-sm text-slate-500">Войдите или активируйте приглашение</p>
+        <h1 class="text-2xl font-bold text-foreground">DreamDocs Academy</h1>
+        <p class="mt-2 text-sm text-text-muted">Войдите или активируйте приглашение</p>
       </div>
 
       <!-- Tabs -->
-      <div class="mb-6 flex rounded-lg bg-slate-100 p-1">
+      <div class="mb-6 flex rounded-lg bg-muted p-1">
         <button
           @click="activeTab = 'login'"
           :class="[
             'flex-1 rounded-md py-2 text-sm font-medium transition',
             activeTab === 'login'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-500 hover:text-slate-700',
+              ? 'bg-surface text-foreground shadow-sm'
+              : 'text-text-muted hover:text-text-secondary',
           ]"
         >
           Войти
@@ -110,8 +110,8 @@ async function handleInvitation() {
           :class="[
             'flex-1 rounded-md py-2 text-sm font-medium transition',
             activeTab === 'invitation'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-500 hover:text-slate-700',
+              ? 'bg-surface text-foreground shadow-sm'
+              : 'text-text-muted hover:text-text-secondary',
           ]"
         >
           Приглашение
@@ -121,37 +121,37 @@ async function handleInvitation() {
       <!-- Login form -->
       <form v-if="activeTab === 'login'" @submit.prevent="handleLogin" class="space-y-4">
         <div>
-          <label for="email" class="mb-1 block text-sm font-medium text-slate-700">Email</label>
+          <label for="email" class="mb-1 block text-sm font-medium text-text-secondary">Email</label>
           <input
             id="email"
             v-model="email"
             type="email"
             required
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+            class="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary-light"
             placeholder="you@example.com"
           />
         </div>
 
         <div>
-          <label for="password" class="mb-1 block text-sm font-medium text-slate-700">Пароль</label>
+          <label for="password" class="mb-1 block text-sm font-medium text-text-secondary">Пароль</label>
           <input
             id="password"
             v-model="password"
             type="password"
             required
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+            class="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary-light"
             placeholder="••••••••"
           />
         </div>
 
-        <div v-if="loginError" class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+        <div v-if="loginError" class="rounded-lg bg-danger-light px-3 py-2 text-sm text-danger">
           {{ loginError }}
         </div>
 
         <button
           type="submit"
           :disabled="isSubmitting"
-          class="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+          class="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-text-inverse transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
         >
           {{ isSubmitting ? "Вход..." : "Войти" }}
         </button>
@@ -160,67 +160,67 @@ async function handleInvitation() {
       <!-- Invitation form -->
       <form v-else @submit.prevent="handleInvitation" class="space-y-4">
         <div>
-          <label for="token" class="mb-1 block text-sm font-medium text-slate-700">Токен приглашения</label>
+          <label for="token" class="mb-1 block text-sm font-medium text-text-secondary">Токен приглашения</label>
           <input
             id="token"
             v-model="inviteToken"
             type="text"
             required
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+            class="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary-light"
             placeholder="Вставьте токен из письма"
           />
         </div>
 
         <div>
-          <label for="invite-name" class="mb-1 block text-sm font-medium text-slate-700">Имя</label>
+          <label for="invite-name" class="mb-1 block text-sm font-medium text-text-secondary">Имя</label>
           <input
             id="invite-name"
             v-model="inviteName"
             type="text"
             required
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+            class="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary-light"
             placeholder="Иван Иванов"
           />
         </div>
 
         <div>
-          <label for="invite-password" class="mb-1 block text-sm font-medium text-slate-700">Пароль</label>
+          <label for="invite-password" class="mb-1 block text-sm font-medium text-text-secondary">Пароль</label>
           <input
             id="invite-password"
             v-model="invitePassword"
             type="password"
             required
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+            class="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary-light"
             placeholder="••••••••"
           />
         </div>
 
         <div>
-          <label for="invite-confirm" class="mb-1 block text-sm font-medium text-slate-700">Подтвердите пароль</label>
+          <label for="invite-confirm" class="mb-1 block text-sm font-medium text-text-secondary">Подтвердите пароль</label>
           <input
             id="invite-confirm"
             v-model="inviteConfirm"
             type="password"
             required
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+            class="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary-light"
             placeholder="••••••••"
           />
         </div>
 
-        <div v-if="inviteError" class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+        <div v-if="inviteError" class="rounded-lg bg-danger-light px-3 py-2 text-sm text-danger">
           {{ inviteError }}
         </div>
 
         <button
           type="submit"
           :disabled="isInviting"
-          class="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+          class="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-text-inverse transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
         >
           {{ isInviting ? "Активация..." : "Активировать" }}
         </button>
       </form>
 
-      <p v-if="activeTab === 'login'" class="mt-4 text-center text-xs text-slate-400">
+      <p v-if="activeTab === 'login'" class="mt-4 text-center text-xs text-text-muted">
         Нет аккаунта? Обратитесь к администратору для получения приглашения.
       </p>
     </div>

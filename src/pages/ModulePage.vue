@@ -80,38 +80,38 @@ function goNext() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50">
+  <div class="min-h-screen bg-background">
     <div class="mx-auto max-w-5xl px-4 py-8">
-      <div v-if="isLoading" class="text-center text-slate-500">Загрузка...</div>
-      <div v-else-if="!data" class="text-center text-slate-500">Модуль не найден</div>
+      <div v-if="isLoading" class="text-center text-text-muted">Загрузка...</div>
+      <div v-else-if="!data" class="text-center text-text-muted">Модуль не найден</div>
       <div v-else class="space-y-6">
         <!-- Breadcrumbs -->
-        <div class="flex items-center gap-2 text-sm text-slate-500">
-          <RouterLink to="/courses" class="hover:text-indigo-600">Программы</RouterLink>
+        <div class="flex items-center gap-2 text-sm text-text-muted">
+          <RouterLink to="/courses" class="hover:text-primary">Программы</RouterLink>
           <span>/</span>
           <RouterLink
             :to="`/course/${data.program?.slug}`"
-            class="hover:text-indigo-600"
+            class="hover:text-primary"
           >
             {{ data.program?.title }}
           </RouterLink>
           <span>/</span>
-          <span class="text-slate-900">{{ data.module?.title }}</span>
+          <span class="text-foreground">{{ data.module?.title }}</span>
         </div>
 
         <!-- Header -->
         <div class="flex items-center justify-between">
-          <h1 class="text-2xl font-bold text-slate-900">{{ data.module?.title }}</h1>
+          <h1 class="text-2xl font-bold text-foreground">{{ data.module?.title }}</h1>
           <span
             v-if="isCompleted"
-            class="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700"
+            class="rounded-full bg-success-light px-3 py-1 text-sm font-medium text-success"
           >
             ✓ Пройдено
           </span>
         </div>
 
         <!-- Content -->
-        <div class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div class="rounded-xl border border-border bg-surface shadow-sm overflow-hidden">
           <!-- HTML ZIP / PDF -->
           <iframe
             v-if="content?.contentType === 'html_zip' || content?.contentType === 'pdf'"
@@ -132,7 +132,7 @@ function goNext() {
           </div>
 
           <!-- No content -->
-          <div v-else class="flex h-64 items-center justify-center text-slate-500">
+          <div v-else class="flex h-64 items-center justify-center text-text-muted">
             Нет контента для этого модуля
           </div>
         </div>
@@ -142,14 +142,14 @@ function goNext() {
           <button
             v-if="data.prevModule && !data.prevModule.isLocked"
             @click="router.push(`/module/${data.prevModule.id}`)"
-            class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            class="rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary transition hover:bg-background"
           >
             ← Предыдущий модуль
           </button>
           <button
             v-else-if="data.prevModule"
             disabled
-            class="cursor-not-allowed rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-400"
+            class="cursor-not-allowed rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-muted"
           >
             🔒 Предыдущий модуль
           </button>
@@ -160,14 +160,14 @@ function goNext() {
               v-if="!isCompleted"
               @click="handleComplete"
               :disabled="completeMutation.isPending.value"
-              class="rounded-lg bg-indigo-600 px-6 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50"
+              class="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-text-inverse transition hover:bg-primary-dark disabled:opacity-50"
             >
               {{ completeMutation.isPending.value ? "Сохранение..." : "Завершить модуль" }}
             </button>
             <button
               v-else
               @click="goNext"
-              class="rounded-lg bg-green-600 px-6 py-2 text-sm font-medium text-white transition hover:bg-green-700"
+              class="rounded-lg bg-success px-6 py-2 text-sm font-medium text-text-inverse transition hover:bg-[#16A34A]"
             >
               {{ data.nextModule ? "Следующий модуль →" : data.assessment ? "Перейти к тесту →" : "К программе →" }}
             </button>
