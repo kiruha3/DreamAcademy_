@@ -257,7 +257,7 @@ const typeLabels: Record<string, string> = {
 
       <!-- Assessments -->
       <div class="rounded-xl border border-border bg-surface p-6 shadow-sm">
-        <div class="mb-4 flex items-center justify-between">
+        <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 class="text-lg font-semibold text-foreground">Тесты модуля</h2>
           <button
             @click="showAssessmentForm = true"
@@ -275,10 +275,10 @@ const typeLabels: Record<string, string> = {
           <div
             v-for="a in assessmentsQuery.data.value?.items"
             :key="a.id"
-            class="flex items-center justify-between rounded-lg border border-border p-4 transition hover:border-primary-light"
+            class="flex flex-col gap-3 rounded-lg border border-border p-4 transition hover:border-primary-light sm:flex-row sm:items-center sm:justify-between"
           >
             <div class="flex-1">
-              <div class="flex items-center gap-3">
+              <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                 <h3 class="font-medium text-foreground">{{ a.title }}</h3>
                 <span class="rounded-full bg-muted px-2 py-0.5 text-xs text-text-secondary">
                   {{ a.assessmentType === 'mini_test' ? 'Мини-тест' : a.assessmentType === 'final' ? 'Финальный' : 'Сертификация' }}

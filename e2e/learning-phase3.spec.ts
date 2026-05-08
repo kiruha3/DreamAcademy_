@@ -120,13 +120,13 @@ test.describe('Phase 3 — Learning Completion', () => {
 
     // All modules should have active "Начать" buttons (not locked by default)
     await expect(userPage.getByText('Основные функции', { exact: true })).toBeVisible();
-    const module2Row = userPage.locator('div.flex.items-center.justify-between.px-6.py-4', {
+    const module2Row = userPage.locator('[data-testid="module-row"]', {
       hasText: 'Основные функции'
     });
     await expect(module2Row.locator('button')).toContainText('Начать');
 
     await expect(userPage.getByText('Введение', { exact: true })).toBeVisible();
-    const module1Row = userPage.locator('div.flex.items-center.justify-between.px-6.py-4', {
+    const module1Row = userPage.locator('[data-testid="module-row"]', {
       hasText: 'Введение'
     }).first();
     await expect(module1Row.locator('button')).toContainText('Начать');

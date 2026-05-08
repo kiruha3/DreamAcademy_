@@ -79,7 +79,7 @@ const { data: programsData } = useQuery({
           <div
             v-for="program in programsData?.items ?? []"
             :key="program.id"
-            class="flex items-center justify-between px-6 py-3"
+            class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6"
           >
             <div>
               <div class="font-medium text-foreground">{{ program.title }}</div>

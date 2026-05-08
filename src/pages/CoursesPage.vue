@@ -44,7 +44,7 @@ const targetBadges: Record<string, string> = {
           class="cursor-pointer rounded-xl border border-border bg-surface p-6 shadow-sm transition hover:shadow-md"
           @click="router.push(`/course/${program.slug}`)"
         >
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between gap-2">
             <span
               class="rounded-full px-2.5 py-0.5 text-xs font-medium"
               :class="targetBadges[program.targetAudience] ?? 'bg-muted text-text-secondary'"

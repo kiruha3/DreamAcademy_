@@ -86,7 +86,7 @@ function goNext() {
       <div v-else-if="!data" class="text-center text-text-muted">Модуль не найден</div>
       <div v-else class="space-y-6">
         <!-- Breadcrumbs -->
-        <div class="flex items-center gap-2 text-sm text-text-muted">
+        <div class="flex flex-wrap items-center gap-2 text-sm text-text-muted">
           <RouterLink to="/courses" class="hover:text-primary">Программы</RouterLink>
           <span>/</span>
           <RouterLink
@@ -100,7 +100,7 @@ function goNext() {
         </div>
 
         <!-- Header -->
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 class="text-2xl font-bold text-foreground">{{ data.module?.title }}</h1>
           <span
             v-if="isCompleted"
@@ -116,8 +116,7 @@ function goNext() {
           <iframe
             v-if="content?.contentType === 'html_zip' || content?.contentType === 'pdf'"
             :src="getContentUrl()"
-            class="w-full"
-            style="height: 70vh"
+            class="h-[50vh] w-full sm:h-[70vh]"
             :sandbox="content?.contentType === 'html_zip' ? 'allow-scripts' : undefined"
           />
 
@@ -138,36 +137,36 @@ function goNext() {
         </div>
 
         <!-- Actions -->
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <button
             v-if="data.prevModule && !data.prevModule.isLocked"
             @click="router.push(`/module/${data.prevModule.id}`)"
-            class="rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary transition hover:bg-background"
+            class="w-full rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary transition hover:bg-background sm:w-auto"
           >
             ← Предыдущий модуль
           </button>
           <button
             v-else-if="data.prevModule"
             disabled
-            class="cursor-not-allowed rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-muted"
+            class="w-full cursor-not-allowed rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-muted sm:w-auto"
           >
             🔒 Предыдущий модуль
           </button>
-          <div v-else />
+          <div v-else class="hidden sm:block" />
 
-          <div class="flex items-center gap-3">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
             <button
               v-if="!isCompleted"
               @click="handleComplete"
               :disabled="completeMutation.isPending.value"
-              class="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-text-inverse transition hover:bg-primary-dark disabled:opacity-50"
+              class="w-full rounded-lg bg-primary px-6 py-2 text-sm font-medium text-text-inverse transition hover:bg-primary-dark disabled:opacity-50 sm:w-auto"
             >
               {{ completeMutation.isPending.value ? "Сохранение..." : "Завершить модуль" }}
             </button>
             <button
               v-else
               @click="goNext"
-              class="rounded-lg bg-success px-6 py-2 text-sm font-medium text-text-inverse transition hover:bg-[#16A34A]"
+              class="w-full rounded-lg bg-success px-6 py-2 text-sm font-medium text-text-inverse transition hover:bg-[#16A34A] sm:w-auto"
             >
               {{ data.nextModule ? "Следующий модуль →" : data.assessment ? "Перейти к тесту →" : "К программе →" }}
             </button>

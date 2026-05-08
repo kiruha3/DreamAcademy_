@@ -55,7 +55,7 @@ function formatDate(date: string | null) {
             <div
               v-for="cert in certificatesData.items"
               :key="cert.id"
-              class="flex items-center justify-between rounded-lg border border-border p-4"
+              class="flex flex-col gap-2 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
                 <div class="font-medium text-foreground">{{ cert.programVersion?.program?.title }}</div>
@@ -65,7 +65,7 @@ function formatDate(date: string | null) {
               </div>
               <RouterLink
                 :to="`/certificate/${cert.certificateNumber}`"
-                class="rounded-md bg-accent px-3 py-1 text-xs font-medium text-primary hover:bg-primary-light"
+                class="w-full rounded-md bg-accent px-3 py-1.5 text-center text-xs font-medium text-primary hover:bg-primary-light sm:w-auto"
               >
                 Открыть
               </RouterLink>

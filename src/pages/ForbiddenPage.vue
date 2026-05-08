@@ -5,8 +5,8 @@ import { RouterLink } from "vue-router";
 <template>
   <div class="flex min-h-screen items-center justify-center bg-background px-4">
     <div class="text-center">
-      <h1 class="text-6xl font-bold text-danger mb-4">403</h1>
-      <p class="text-xl text-text-secondary mb-2">Доступ запрещён</p>
+      <h1 class="text-5xl font-bold text-danger mb-4 sm:text-6xl">403</h1>
+      <p class="text-lg text-text-secondary mb-2 sm:text-xl">Доступ запрещён</p>
       <p class="text-text-muted mb-6">У вас недостаточно прав для просмотра этой страницы.</p>
       <RouterLink
         to="/"

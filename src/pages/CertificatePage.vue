@@ -29,7 +29,7 @@ function formatDate(date: string | null) {
       <div v-else class="space-y-6">
         <!-- Certificate -->
         <div
-          class="relative overflow-hidden rounded-2xl border-8 border-double border-border bg-surface p-12 text-center shadow-lg"
+          class="relative overflow-hidden rounded-2xl border-4 border-double border-border bg-surface p-6 text-center shadow-lg sm:border-8 sm:p-12"
         >
           <div class="absolute inset-0 opacity-5">
             <div class="h-full w-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiMwMDAiLz48L3N2Zz4=')]" />
@@ -39,27 +39,27 @@ function formatDate(date: string | null) {
             <div class="text-lg font-medium uppercase tracking-widest text-warning">
               DreamDocs Academy
             </div>
-            <h1 class="mt-4 text-4xl font-bold text-foreground">Сертификат</h1>
+            <h1 class="mt-4 text-2xl font-bold text-foreground sm:text-4xl">Сертификат</h1>
             <p class="mt-2 text-lg text-text-secondary">
               Настоящим подтверждается, что
             </p>
-            <p class="mt-4 text-3xl font-bold text-primary-dark">
+            <p class="mt-4 text-xl font-bold text-primary-dark sm:text-3xl">
               {{ cert.user?.name }}
             </p>
             <p class="mt-4 text-lg text-text-secondary">
               успешно завершил(а) программу
             </p>
-            <p class="mt-2 text-2xl font-semibold text-foreground">
+            <p class="mt-2 text-lg font-semibold text-foreground sm:text-2xl">
               {{ cert.programVersion?.program?.title }}
             </p>
-            <div class="mt-8 flex items-center justify-center gap-8">
-              <div class="text-left">
+            <div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-8">
+              <div class="text-center sm:text-left">
                 <div class="text-sm text-text-muted">Дата выдачи</div>
-                <div class="text-lg font-medium text-foreground">{{ formatDate(cert.issuedAt) }}</div>
+                <div class="text-base font-medium text-foreground sm:text-lg">{{ formatDate(cert.issuedAt) }}</div>
               </div>
-              <div class="text-left">
+              <div class="text-center sm:text-left">
                 <div class="text-sm text-text-muted">Регистрационный номер</div>
-                <div class="text-lg font-medium text-foreground">{{ cert.certificateNumber }}</div>
+                <div class="text-base font-medium text-foreground sm:text-lg">{{ cert.certificateNumber }}</div>
               </div>
             </div>
 

@@ -175,7 +175,7 @@ const typeLabels: Record<string, string> = {
         </button>
       </div>
 
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-2xl font-bold text-foreground">{{ assessment.title }}</h1>
         <button
           v-if="assessment.versions?.[0]?.status !== 'published'"
@@ -235,7 +235,7 @@ const typeLabels: Record<string, string> = {
 
       <!-- Questions -->
       <div class="rounded-xl border border-border bg-surface p-6 shadow-sm">
-        <div class="mb-4 flex items-center justify-between">
+        <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 class="text-lg font-semibold text-foreground">Вопросы ({{ assessment.questions?.length ?? 0 }})</h2>
           <button
             @click="showQuestionForm = true"

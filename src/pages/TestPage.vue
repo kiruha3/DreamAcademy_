@@ -140,7 +140,7 @@ const isPassed = computed(() => resultData.value?.isPassed);
       <div v-else-if="!assessmentData" class="text-center text-text-muted">Тест не найден</div>
       <div v-else class="space-y-6">
         <!-- Header -->
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 class="text-2xl font-bold text-foreground">{{ assessment?.title }}</h1>
             <p v-if="assessment?.description" class="mt-1 text-text-secondary">

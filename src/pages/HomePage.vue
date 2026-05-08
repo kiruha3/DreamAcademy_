@@ -19,14 +19,14 @@ function handleCTA() {
     <!-- Hero -->
     <section class="bg-surface pb-20 pt-16">
       <div class="mx-auto max-w-4xl px-4 text-center">
-        <h1 class="text-5xl font-extrabold tracking-tight text-foreground sm:text-6xl">
+        <h1 class="text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
           DreamDocs Academy
         </h1>
         <p class="mx-auto mt-6 max-w-2xl text-lg text-text-secondary">
           Учебная платформа для обучения работе с DreamDocs.
           Программы, курсы, модули, тесты и сертификаты — всё в одном месте.
         </p>
-        <div class="mt-10 flex justify-center gap-4">
+        <div class="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
           <button
             @click="handleCTA"
             class="rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-text-inverse shadow-sm transition hover:bg-primary-dark"

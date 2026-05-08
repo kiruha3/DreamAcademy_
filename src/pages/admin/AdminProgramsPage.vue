@@ -79,11 +79,11 @@ const statusLabels: Record<string, { text: string; class: string }> = {
 <template>
   <AdminLayout>
     <div class="space-y-6">
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-2xl font-bold text-foreground">Программы</h1>
         <button
           @click="showCreateModal = true"
-          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse transition hover:bg-primary-dark"
+          class="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse transition hover:bg-primary-dark sm:w-auto"
         >
           + Создать программу
         </button>
@@ -98,8 +98,8 @@ const statusLabels: Record<string, { text: string; class: string }> = {
         />
       </div>
 
-      <!-- Table -->
-      <div class="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
+      <!-- Desktop Table -->
+      <div class="hidden md:block overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
         <table class="w-full text-left text-sm">
           <thead class="bg-background">
             <tr>
@@ -162,6 +162,54 @@ const statusLabels: Record<string, { text: string; class: string }> = {
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div class="md:hidden space-y-3">
+        <div v-if="isLoading" class="rounded-xl border border-border bg-surface p-8 text-center text-text-muted">
+          Загрузка...
+        </div>
+        <div v-else-if="!data?.items?.length" class="rounded-xl border border-border bg-surface p-8 text-center text-text-muted">
+          Нет программ
+        </div>
+        <div
+          v-for="program in data?.items"
+          :key="program.id"
+          class="rounded-xl border border-border bg-surface p-4 shadow-sm"
+        >
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <div class="font-medium text-foreground">{{ program.title }}</div>
+              <div class="text-xs text-text-muted">{{ program.slug }}</div>
+            </div>
+            <span
+              v-if="program.versions?.[0]"
+              class="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium"
+              :class="statusLabels[program.versions[0].status]?.class"
+            >
+              {{ statusLabels[program.versions[0].status]?.text }}
+            </span>
+          </div>
+          <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-secondary">
+            <span>Код: {{ program.code }}</span>
+            <span>{{ targetLabels[program.targetAudience] }}</span>
+            <span>v{{ program.versions?.[0]?.versionNumber ?? "—" }}</span>
+          </div>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button
+              @click="router.push(`/admin/programs/${program.id}`)"
+              class="rounded-md bg-accent px-3 py-1.5 text-xs font-medium text-primary-dark"
+            >
+              Редактировать
+            </button>
+            <button
+              @click="handleDelete(program.id)"
+              class="rounded-md bg-danger-light px-3 py-1.5 text-xs font-medium text-danger"
+            >
+              Удалить
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Pagination -->

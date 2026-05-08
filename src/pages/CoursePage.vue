@@ -97,7 +97,7 @@ function getContentTypeLabel(contents: any[]) {
       <div v-else-if="!courseData" class="text-center text-text-muted">Программа не найдена</div>
       <div v-else class="space-y-8">
         <!-- Breadcrumbs -->
-        <div class="flex items-center gap-2 text-sm text-text-muted">
+        <div class="flex flex-wrap items-center gap-2 text-sm text-text-muted">
           <RouterLink to="/courses" class="hover:text-primary">Программы</RouterLink>
           <span>/</span>
           <span class="text-foreground">{{ courseData.program.title }}</span>
@@ -129,10 +129,11 @@ function getContentTypeLabel(contents: any[]) {
               <div
                 v-for="module in course.modules"
                 :key="module.id"
-                class="flex items-center justify-between px-6 py-4"
+                data-testid="module-row"
+                class="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6"
               >
                 <div class="flex-1">
-                  <div class="flex items-center gap-2">
+                  <div class="flex flex-wrap items-center gap-2">
                     <span class="font-medium text-foreground">{{ module.title }}</span>
                     <span
                       class="rounded-full px-2 py-0.5 text-xs font-medium"
@@ -149,14 +150,14 @@ function getContentTypeLabel(contents: any[]) {
                 <button
                   v-if="!isModuleLocked(course.modules, module)"
                   @click="router.push(`/module/${module.id}`)"
-                  class="ml-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse transition hover:bg-primary-dark"
+                  class="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse transition hover:bg-primary-dark sm:w-auto"
                 >
                   {{ getModuleActionText(getModuleStatus(module.id)) }}
                 </button>
                 <button
                   v-else
                   disabled
-                  class="ml-4 cursor-not-allowed rounded-lg bg-border px-4 py-2 text-sm font-medium text-text-secondary"
+                  class="w-full cursor-not-allowed rounded-lg bg-border px-4 py-2 text-sm font-medium text-text-secondary sm:w-auto"
                 >
                   🔒 Заблокировано
                 </button>
@@ -165,10 +166,10 @@ function getContentTypeLabel(contents: any[]) {
               <!-- Course-level assessment -->
               <div
                 v-if="course.assessment"
-                class="flex items-center justify-between px-6 py-4 bg-warning-light/50"
+                class="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 bg-warning-light/50"
               >
                 <div class="flex-1">
-                  <div class="flex items-center gap-2">
+                  <div class="flex flex-wrap items-center gap-2">
                     <span class="font-medium text-foreground">{{ course.assessment.title }}</span>
                     <span class="rounded-full bg-warning-light px-2 py-0.5 text-xs font-medium text-warning">
                       Финальный тест
@@ -177,7 +178,7 @@ function getContentTypeLabel(contents: any[]) {
                 </div>
                 <button
                   @click="router.push(`/assessment/${course.assessment.id}`)"
-                  class="ml-4 rounded-lg bg-warning px-4 py-2 text-sm font-medium text-text-inverse transition hover:bg-[#D97706]"
+                  class="w-full rounded-lg bg-warning px-4 py-2 text-sm font-medium text-text-inverse transition hover:bg-[#D97706] sm:w-auto"
                 >
                   Пройти тест
                 </button>

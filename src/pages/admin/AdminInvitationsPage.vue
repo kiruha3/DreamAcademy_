@@ -79,18 +79,18 @@ function formatDate(date: string | null) {
 <template>
   <AdminLayout>
     <div class="space-y-6">
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-2xl font-bold text-foreground">Приглашения</h1>
         <button
           @click="showCreateModal = true"
-          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse hover:bg-primary-dark"
+          class="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse hover:bg-primary-dark sm:w-auto"
         >
           + Создать приглашение
         </button>
       </div>
 
-      <!-- Table -->
-      <div class="rounded-xl border border-border bg-surface shadow-sm overflow-hidden">
+      <!-- Desktop Table -->
+      <div class="hidden md:block rounded-xl border border-border bg-surface shadow-sm overflow-hidden">
         <table class="w-full text-sm">
           <thead class="bg-background text-text-secondary">
             <tr>
@@ -141,6 +141,48 @@ function formatDate(date: string | null) {
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div class="md:hidden space-y-3">
+        <div
+          v-for="inv in data?.items ?? []"
+          :key="inv.id"
+          class="rounded-xl border border-border bg-surface p-4 shadow-sm"
+        >
+          <div class="flex items-start justify-between gap-2">
+            <div class="font-medium text-foreground">{{ inv.email }}</div>
+            <span class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium" :class="getStatus(inv).class">
+              {{ getStatus(inv).text }}
+            </span>
+          </div>
+          <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-secondary">
+            <span class="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-text-secondary">
+              {{ roleLabels[inv.role] ?? inv.role }}
+            </span>
+            <span>Истекает: {{ formatDate(inv.expiresAt) }}</span>
+          </div>
+          <div class="mt-1 text-xs text-text-muted">
+            Кем создано: {{ inv.createdByUser?.name ?? "—" }}
+          </div>
+          <div v-if="!inv.usedAt && !inv.revokedAt" class="mt-3 flex flex-wrap gap-2">
+            <button
+              @click="resendMutation.mutate({ id: inv.id })"
+              class="rounded-md bg-accent px-3 py-1.5 text-xs font-medium text-primary"
+            >
+              Повторить
+            </button>
+            <button
+              @click="revokeMutation.mutate({ id: inv.id })"
+              class="rounded-md bg-danger-light px-3 py-1.5 text-xs font-medium text-danger"
+            >
+              Отозвать
+            </button>
+          </div>
+        </div>
+        <div v-if="!data?.items?.length" class="rounded-xl border border-border bg-surface p-8 text-center text-text-muted">
+          Нет приглашений
+        </div>
       </div>
 
       <!-- Pagination -->
