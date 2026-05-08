@@ -12,6 +12,7 @@ export default defineConfig({
         /^\/src\/.*/,
         /^\/node_modules\/.*/,
         /^\/@.+$/,
+        /^\/content\/.*/,
         /.*\.ts$/,
         /.*\.tsx$/,
       ],
