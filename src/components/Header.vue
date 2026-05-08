@@ -45,13 +45,14 @@ async function handleLogout() {
           Профиль
         </span>
 
-        <span
+        <RouterLink
           v-if="auth.isAdmin"
-          class="text-sm font-medium text-slate-400 cursor-not-allowed"
-          title="Будет доступно в следующих фазах"
+          to="/admin"
+          class="text-sm font-medium text-slate-600 transition hover:text-indigo-600"
+          :class="{ 'text-indigo-600': $route.path.startsWith('/admin') }"
         >
           Админка
-        </span>
+        </RouterLink>
       </nav>
 
       <!-- Auth state -->

@@ -26,6 +26,36 @@ const router = createRouter({
       component: () => import("@/pages/ForbiddenPage.vue"),
     },
     {
+      path: "/admin",
+      component: () => import("@/pages/AdminDashboardPage.vue"),
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/programs",
+      component: () => import("@/pages/admin/AdminProgramsPage.vue"),
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/programs/:id",
+      component: () => import("@/pages/admin/AdminProgramBuilderPage.vue"),
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/courses/:id",
+      component: () => import("@/pages/admin/AdminCourseBuilderPage.vue"),
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/modules/:id",
+      component: () => import("@/pages/admin/AdminModuleBuilderPage.vue"),
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/assessments/:id",
+      component: () => import("@/pages/admin/AdminAssessmentBuilderPage.vue"),
+      meta: { requiresAdmin: true },
+    },
+    {
       path: "/:pathMatch(.*)*",
       name: "not-found",
       component: () => import("@/pages/NotFoundPage.vue"),
