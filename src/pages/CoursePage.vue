@@ -116,7 +116,7 @@ function getContentTypeLabel(contents: any[]) {
           <div
             v-for="course in courseData.courses"
             :key="course.id"
-            class="rounded-xl border border-border bg-surface shadow-sm"
+            class=" border border-border bg-surface shadow-sm"
           >
             <div class="px-6 py-4 border-b border-border">
               <h2 class="text-lg font-semibold text-foreground">{{ course.title }}</h2>
