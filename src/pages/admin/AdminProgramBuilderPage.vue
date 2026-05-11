@@ -53,6 +53,9 @@ const deleteCourseMutation = useMutation({
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "courses", "list", programId] });
   },
+  onError: (err: any) => {
+    alert("Ошибка удаления курса: " + (err?.message || "Не удалось удалить курс"));
+  },
 });
 
 const publishMutation = useMutation({
@@ -61,6 +64,9 @@ const publishMutation = useMutation({
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "program", programId] });
     queryClient.invalidateQueries({ queryKey: ["admin", "programs", "list"] });
+  },
+  onError: (err: any) => {
+    alert("Ошибка публикации: " + (err?.message || "Не удалось опубликовать программу"));
   },
 });
 

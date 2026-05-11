@@ -26,8 +26,12 @@ export const useAuthStore = defineStore("auth", () => {
     try {
       const me = await trpc.auth.me.query();
       user.value = me;
+      if (!me) {
+        localStorage.removeItem("dreamdocs_auth");
+      }
     } catch {
       user.value = null;
+      localStorage.removeItem("dreamdocs_auth");
     } finally {
       isLoading.value = false;
     }
@@ -51,9 +55,11 @@ export const useAuthStore = defineStore("auth", () => {
     isLoading.value = true;
     try {
       await trpc.auth.logout.mutate();
+    } catch {
+      // Ignore server errors — always clear client state
+    } finally {
       user.value = null;
       localStorage.removeItem("dreamdocs_auth");
-    } finally {
       isLoading.value = false;
     }
   }

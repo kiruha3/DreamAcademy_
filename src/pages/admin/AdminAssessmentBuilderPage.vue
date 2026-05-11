@@ -36,12 +36,18 @@ const deleteQuestionMutation = useMutation({
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "assessment", assessmentId] });
   },
+  onError: (err: any) => {
+    alert("Ошибка удаления вопроса: " + (err?.message || "Не удалось удалить вопрос"));
+  },
 });
 
 const publishMutation = useMutation({
   mutationFn: trpc.admin.assessment.publish.mutate,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "assessment", assessmentId] });
+  },
+  onError: (err: any) => {
+    alert("Ошибка публикации: " + (err?.message || "Не удалось опубликовать тест"));
   },
 });
 

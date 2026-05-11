@@ -53,6 +53,9 @@ const deleteModuleMutation = useMutation({
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "modules", "list", courseId] });
   },
+  onError: (err: any) => {
+    alert("Ошибка удаления модуля: " + (err?.message || "Не удалось удалить модуль"));
+  },
 });
 
 const assessmentsQuery = useQuery({
@@ -165,6 +168,9 @@ const deleteAssessmentMutation = useMutation({
   mutationFn: trpc.admin.assessment.delete.mutate,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "assessments", "course", courseId] });
+  },
+  onError: (err: any) => {
+    alert("Ошибка удаления теста: " + (err?.message || "Не удалось удалить тест"));
   },
 });
 

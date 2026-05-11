@@ -58,6 +58,9 @@ const deleteAssessmentMutation = useMutation({
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "assessments", "module", moduleId] });
   },
+  onError: (err: any) => {
+    alert("Ошибка удаления теста: " + (err?.message || "Не удалось удалить тест"));
+  },
 });
 
 const editableModule = computed(() => ({
