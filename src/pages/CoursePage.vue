@@ -16,7 +16,7 @@ const { data: courseData, isLoading } = useQuery({
 const programId = computed(() => courseData.value?.program.id);
 
 const { data: progressData } = useQuery({
-  queryKey: ["progress", programId],
+  queryKey: () => ["progress", programId.value],
   queryFn: () =>
     programId.value
       ? trpc.progress.getByProgram.query({ programId: programId.value })

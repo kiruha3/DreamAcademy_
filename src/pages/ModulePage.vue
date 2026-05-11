@@ -7,16 +7,16 @@ import { computed, ref, watch, onBeforeUnmount } from "vue";
 const route = useRoute();
 const router = useRouter();
 const queryClient = useQueryClient();
-const moduleId = Number(route.params.id);
+const moduleId = computed(() => Number(route.params.id));
 
 const { data, isLoading } = useQuery({
   queryKey: ["module", "context", moduleId],
-  queryFn: () => trpc.module.getContext.query({ id: moduleId }),
+  queryFn: () => trpc.module.getContext.query({ id: moduleId.value }),
 });
 
 const { data: moduleProgress } = useQuery({
   queryKey: ["progress", "module", moduleId],
-  queryFn: () => trpc.progress.getByModule.query({ moduleId }),
+  queryFn: () => trpc.progress.getByModule.query({ moduleId: moduleId.value }),
 });
 
 const localCompleted = ref(false);
@@ -62,9 +62,13 @@ function cancelHide() {
   }
 }
 
+watch(moduleId, () => { localCompleted.value = false; });
+
 watch(content, (c) => {
   if (c?.contentType === 'html_zip') {
     document.body.classList.add('overflow-hidden');
+  } else {
+    document.body.classList.remove('overflow-hidden');
   }
 }, { immediate: true });
 
@@ -90,7 +94,7 @@ function getRutubeEmbedUrl() {
 }
 
 function handleComplete() {
-  completeMutation.mutate({ moduleId });
+  completeMutation.mutate({ moduleId: moduleId.value });
 }
 
 function goNext() {
@@ -109,7 +113,7 @@ function goNext() {
   <div v-if="content?.contentType === 'html_zip'" class="h-full flex flex-col overflow-hidden bg-background relative">
     <!-- Floating breadcrumbs — slides up over the app header, no extra strip -->
     <div
-      class="absolute top-0 left-0 right-0 z-50 transition-all duration-100 ease-out"
+      class="absolute top-0 left-0 bg-transparent z-50 transition-all duration-100 ease-out"
       :class="showTopBar ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
       @mouseenter="cancelHide(); showTopBar = true"
       @mouseleave="scheduleHide()"
@@ -125,6 +129,12 @@ function goNext() {
           </RouterLink>
           <span class="text-border">/</span>
           <span class="text-foreground font-medium truncate">{{ data.module?.title }}</span>
+          <span
+            v-if="isCompleted"
+            class="rounded-full bg-success-light px-2 py-0.5 text-xs font-medium text-success shrink-0"
+          >
+            ✓ Пройдено
+          </span>
         </div>
       </div>
     </div>

@@ -23,6 +23,7 @@ export const progressRouter = router({
           eq(programVersions.programId, input.programId),
           eq(programVersions.status, "published")
         ),
+        orderBy: (pv, { desc }) => [desc(pv.versionNumber)],
       });
 
       if (!pv) return { modules: [] };
@@ -41,7 +42,13 @@ export const progressRouter = router({
               ),
             })
           : [];
-      const cvIds = cvList.map((cv) => cv.id);
+
+      // Deduplicate: keep only latest published version per course
+      const cvByCourse = new Map<number, (typeof cvList)[0]>();
+      for (const cv of cvList.sort((a, b) => b.versionNumber - a.versionNumber)) {
+        if (!cvByCourse.has(cv.courseId)) cvByCourse.set(cv.courseId, cv);
+      }
+      const cvIds = [...cvByCourse.values()].map((cv) => cv.id);
 
       const modulesList =
         cvIds.length > 0
@@ -61,7 +68,13 @@ export const progressRouter = router({
               ),
             })
           : [];
-      const mvIds = mvList.map((mv) => mv.id);
+
+      // Deduplicate: keep only latest published version per module
+      const mvByModule = new Map<number, (typeof mvList)[0]>();
+      for (const mv of mvList.sort((a, b) => b.versionNumber - a.versionNumber)) {
+        if (!mvByModule.has(mv.moduleId)) mvByModule.set(mv.moduleId, mv);
+      }
+      const mvIds = [...mvByModule.values()].map((mv) => mv.id);
 
       const progressList =
         mvIds.length > 0

@@ -119,7 +119,10 @@ export const courseRouter = router({
       const courseVersionsList =
         courseIds.length > 0
           ? await db.query.courseVersions.findMany({
-              where: inArray(courseVersions.courseId, courseIds),
+              where: and(
+                inArray(courseVersions.courseId, courseIds),
+                eq(courseVersions.status, "published")
+              ),
             })
           : [];
 
