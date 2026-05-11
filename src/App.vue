@@ -12,9 +12,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-background">
+  <div class="h-[100dvh] flex flex-col bg-background">
     <Header />
-    <main>
+    <main class="flex-1 min-h-0 overflow-y-auto">
       <RouterView />
     </main>
   </div>

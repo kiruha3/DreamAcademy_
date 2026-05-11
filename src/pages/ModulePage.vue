@@ -2,7 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { useRoute, useRouter } from "vue-router";
 import { trpc } from "@/lib/trpc";
-import { computed, ref } from "vue";
+import { computed, ref, watch, onBeforeUnmount } from "vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -45,15 +45,40 @@ const content = computed(() => data.value?.contents?.[0] ?? null);
 
 const s3PublicUrl = import.meta.env.VITE_S3_PUBLIC_URL ?? "";
 
+// ─── Top bar auto-hide logic ───
+const showTopBar = ref(false);
+let hideTimer: ReturnType<typeof setTimeout> | null = null;
+
+function scheduleHide() {
+  hideTimer = setTimeout(() => {
+    showTopBar.value = false;
+  }, 100);
+}
+
+function cancelHide() {
+  if (hideTimer) {
+    clearTimeout(hideTimer);
+    hideTimer = null;
+  }
+}
+
+watch(content, (c) => {
+  if (c?.contentType === 'html_zip') {
+    document.body.classList.add('overflow-hidden');
+  }
+}, { immediate: true });
+
+onBeforeUnmount(() => {
+  document.body.classList.remove('overflow-hidden');
+});
+
 function getContentUrl() {
   if (!content.value) return "";
   const key = content.value.s3Key;
   if (!key) return "";
-  // Local extracted content (backend ZIP extraction)
   if (key.startsWith("content/")) {
     return `/${key}`;
   }
-  // S3-hosted content
   return `${s3PublicUrl}/${key}`;
 }
 
@@ -80,7 +105,93 @@ function goNext() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-background">
+  <!-- HTML ZIP: immersive layout with floating top bar and bottom context -->
+  <div v-if="content?.contentType === 'html_zip'" class="h-full flex flex-col overflow-hidden bg-background relative">
+    <!-- Floating breadcrumbs — slides up over the app header, no extra strip -->
+    <div
+      class="absolute top-0 left-0 right-0 z-50 transition-all duration-100 ease-out"
+      :class="showTopBar ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
+      @mouseenter="cancelHide(); showTopBar = true"
+      @mouseleave="scheduleHide()"
+    >
+      <div class="bg-background/95 backdrop-blur-md border-b border-border px-4 py-2">
+        <div class="flex items-center gap-2 text-sm text-text-muted">
+          <RouterLink
+            :to="`/course/${data.program?.slug}`"
+            class="hover:text-primary flex items-center gap-1 transition"
+          >
+            <span>←</span>
+            <span class="truncate">{{ data.program?.title }}</span>
+          </RouterLink>
+          <span class="text-border">/</span>
+          <span class="text-foreground font-medium truncate">{{ data.module?.title }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hover detection zone over header -->
+    <div
+      class="absolute top-0 left-0 right-0 h-10 z-40"
+      :class="showTopBar ? 'pointer-events-none' : 'pointer-events-auto'"
+      @mouseenter="cancelHide(); showTopBar = true"
+      @touchstart="showTopBar = !showTopBar"
+    />
+
+    <!-- iframe: fills all space, no border, no radius -->
+    <iframe
+      :src="getContentUrl()"
+      class="flex-1 min-h-0 w-full"
+      sandbox="allow-scripts"
+    />
+
+    <!-- Bottom panel: prev / module title / next or complete -->
+    <div class="shrink-0 px-4 py-3 border-t border-border bg-background flex items-center gap-3">
+      <!-- Left: previous -->
+      <div class="flex-1 min-w-0 flex justify-start">
+        <button
+          v-if="data.prevModule && !data.prevModule.isLocked"
+          @click="router.push(`/module/${data.prevModule.id}`)"
+          class="rounded-lg border border-border px-3 py-2 text-sm font-medium text-text-secondary transition hover:bg-background"
+        >
+          ← Предыдущий
+        </button>
+        <button
+          v-else-if="data.prevModule"
+          disabled
+          class="cursor-not-allowed rounded-lg border border-border px-3 py-2 text-sm font-medium text-text-muted opacity-50"
+        >
+          🔒
+        </button>
+      </div>
+
+      <!-- Center: module title (desktop only) -->
+      <span class="hidden md:block text-sm text-text-muted truncate text-center">
+        {{ data.module?.title }}
+      </span>
+
+      <!-- Right: complete or next -->
+      <div class="flex-1 min-w-0 flex justify-end">
+        <button
+          v-if="!isCompleted"
+          @click="handleComplete"
+          :disabled="completeMutation.isPending.value"
+          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse transition hover:bg-primary-dark disabled:opacity-50"
+        >
+          {{ completeMutation.isPending.value ? "Сохранение..." : "Завершить" }}
+        </button>
+        <button
+          v-else
+          @click="goNext"
+          class="rounded-lg bg-success px-4 py-2 text-sm font-medium text-text-inverse transition hover:bg-[#16A34A]"
+        >
+          {{ data.nextModule ? "Следующий →" : data.assessment ? "К тесту →" : "К курсу →" }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF / Rutube / No content / Loading: standard layout -->
+  <div v-else class="min-h-screen bg-background">
     <div class="mx-auto max-w-5xl px-4 py-8">
       <div v-if="isLoading" class="text-center text-text-muted">Загрузка...</div>
       <div v-else-if="!data" class="text-center text-text-muted">Модуль не найден</div>
@@ -89,10 +200,7 @@ function goNext() {
         <div class="flex flex-wrap items-center gap-2 text-sm text-text-muted">
           <RouterLink to="/courses" class="hover:text-primary">Программы</RouterLink>
           <span>/</span>
-          <RouterLink
-            :to="`/course/${data.program?.slug}`"
-            class="hover:text-primary"
-          >
+          <RouterLink :to="`/course/${data.program?.slug}`" class="hover:text-primary">
             {{ data.program?.title }}
           </RouterLink>
           <span>/</span>
@@ -112,15 +220,11 @@ function goNext() {
 
         <!-- Content -->
         <div class="rounded-xl border border-border bg-surface shadow-sm overflow-hidden">
-          <!-- HTML ZIP / PDF -->
           <iframe
-            v-if="content?.contentType === 'html_zip' || content?.contentType === 'pdf'"
+            v-if="content?.contentType === 'pdf'"
             :src="getContentUrl()"
             class="h-[50vh] w-full sm:h-[70vh]"
-            :sandbox="content?.contentType === 'html_zip' ? 'allow-scripts' : undefined"
           />
-
-          <!-- Rutube -->
           <div v-else-if="content?.contentType === 'rutube'" class="aspect-video">
             <iframe
               :src="getRutubeEmbedUrl()"
@@ -129,8 +233,6 @@ function goNext() {
               allowfullscreen
             />
           </div>
-
-          <!-- No content -->
           <div v-else class="flex h-64 items-center justify-center text-text-muted">
             Нет контента для этого модуля
           </div>
