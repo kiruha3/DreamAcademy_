@@ -16,6 +16,37 @@ const selectedProgramId = ref<number | null>(null);
 const showCreateModal = ref(false);
 const newUser = ref({ name: '', email: '', password: '', role: 'employee' as const });
 
+const showEditModal = ref(false);
+const editUser = ref<{ id: number; name: string; email: string; role: string; password: string }>({
+  id: 0, name: '', email: '', role: 'employee', password: ''
+});
+
+function openEdit(user: any) {
+  editUser.value = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    password: '',
+  };
+  showEditModal.value = true;
+}
+
+function handleUpdate() {
+  const payload: any = { id: editUser.value.id };
+  if (editUser.value.name) payload.name = editUser.value.name;
+  if (editUser.value.email) payload.email = editUser.value.email;
+  if (editUser.value.role) payload.role = editUser.value.role;
+  if (editUser.value.password) payload.password = editUser.value.password;
+  updateMutation.mutate(payload);
+}
+
+function handleDelete(userId: number, userName: string) {
+  if (confirm('Удалить пользователя ' + userName + '?')) {
+    deleteMutation.mutate({ id: userId });
+  }
+}
+
 const { data, isLoading } = useQuery({
   queryKey: ["admin", "users", "list", search.value, roleFilter.value, offset.value],
   queryFn: () =>
@@ -78,6 +109,31 @@ const createMutation = useMutation({
     queryClient.invalidateQueries({ queryKey: ['admin', 'users', 'list'] });
     showCreateModal.value = false;
     newUser.value = { name: '', email: '', password: '', role: 'employee' };
+  },
+  onError: (err: any) => {
+    alert('Ошибка создания: ' + (err?.message || 'Не удалось создать пользователя'));
+  },
+});
+
+const updateMutation = useMutation({
+  mutationFn: trpc.admin.user.update.mutate,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['admin', 'users', 'list'] });
+    showEditModal.value = false;
+    editUser.value = { id: 0, name: '', email: '', role: 'employee', password: '' };
+  },
+  onError: (err: any) => {
+    alert('Ошибка сохранения: ' + (err?.message || 'Не удалось обновить пользователя'));
+  },
+});
+
+const deleteMutation = useMutation({
+  mutationFn: trpc.admin.user.delete.mutate,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['admin', 'users', 'list'] });
+  },
+  onError: (err: any) => {
+    alert('Ошибка удаления: ' + (err?.message || 'Не удалось удалить пользователя'));
   },
 });
 
@@ -182,6 +238,18 @@ const statusLabels: Record<string, { text: string; class: string }> = {
                     Разблокировать
                   </button>
                   <button
+                    @click="openEdit(user)"
+                    class="rounded-md bg-primary-light px-2 py-1 text-xs font-medium text-primary hover:bg-primary"
+                  >
+                    Редактировать
+                  </button>
+                  <button
+                    @click="handleDelete(user.id, user.name)"
+                    class="rounded-md bg-danger-light px-2 py-1 text-xs font-medium text-danger hover:bg-danger"
+                  >
+                    Удалить
+                  </button>
+                  <button
                     @click="openAssign(user.id)"
                     class="rounded-md bg-accent px-2 py-1 text-xs font-medium text-primary hover:bg-primary-light"
                   >
@@ -235,6 +303,18 @@ const statusLabels: Record<string, { text: string; class: string }> = {
               class="rounded-md bg-success-light px-3 py-1.5 text-xs font-medium text-success"
             >
               Разблокировать
+            </button>
+            <button
+              @click="openEdit(user)"
+              class="rounded-md bg-primary-light px-3 py-1.5 text-xs font-medium text-primary"
+            >
+              Редактировать
+            </button>
+            <button
+              @click="handleDelete(user.id, user.name)"
+              class="rounded-md bg-danger-light px-3 py-1.5 text-xs font-medium text-danger"
+            >
+              Удалить
             </button>
             <button
               @click="openAssign(user.id)"
@@ -303,6 +383,70 @@ const statusLabels: Record<string, { text: string; class: string }> = {
             class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse hover:bg-primary-dark disabled:opacity-50"
           >
             Назначить
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div
+      v-if="showEditModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      @click.self="showEditModal = false"
+    >
+      <div class="w-full max-w-md rounded-xl bg-surface p-6 shadow-lg">
+        <h3 class="text-lg font-semibold text-foreground">Редактировать пользователя</h3>
+        <div class="mt-4 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-text-secondary">Имя</label>
+            <input
+              v-model="editUser.name"
+              class="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-text-secondary">Email</label>
+            <input
+              v-model="editUser.email"
+              type="email"
+              class="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-text-secondary">Новый пароль (оставьте пустым, чтобы не менять)</label>
+            <input
+              v-model="editUser.password"
+              type="password"
+              placeholder="Не изменять"
+              class="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-text-secondary">Роль</label>
+            <select
+              v-model="editUser.role"
+              class="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none"
+            >
+              <option value="employee">Сотрудник</option>
+              <option value="partner">Партнёр</option>
+              <option value="integrator">Интегратор</option>
+              <option value="admin">Админ</option>
+            </select>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            @click="showEditModal = false"
+            class="rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-background"
+          >
+            Отмена
+          </button>
+          <button
+            @click="handleUpdate"
+            :disabled="!editUser.name || !editUser.email || updateMutation.isPending.value"
+            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-inverse hover:bg-primary-dark disabled:opacity-50"
+          >
+            Сохранить
           </button>
         </div>
       </div>

@@ -159,6 +159,73 @@ export const adminUserRouter = router({
       return { success: true };
     }),
 
+  update: adminProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string().min(1).max(255).optional(),
+        email: z.string().email().optional(),
+        role: z.enum(ROLES).optional(),
+        password: z.string().min(8).optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { id, password, ...fields } = input;
+
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, id),
+      });
+
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+
+      // If email is changing, check uniqueness
+      if (fields.email && fields.email !== user.email) {
+        const existing = await db.query.users.findFirst({
+          where: eq(users.email, fields.email),
+        });
+        if (existing) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "User with this email already exists",
+          });
+        }
+      }
+
+      const updateData: Record<string, any> = { ...fields };
+      if (password) {
+        updateData.passwordHash = await hashPassword(password);
+      }
+
+      await db.update(users).set(updateData).where(eq(users.id, id));
+
+      return { success: true };
+    }),
+
+  delete: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      if (input.id === ctx.user.userId) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You cannot delete your own account",
+        });
+      }
+
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, input.id),
+      });
+
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+
+      await db.delete(users).where(eq(users.id, input.id));
+
+      return { success: true };
+    }),
+
   assignProgram: adminProcedure
     .input(
       z.object({
