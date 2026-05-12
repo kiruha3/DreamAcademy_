@@ -6,7 +6,7 @@ export const AUTH_COOKIE_NAME = "dreamdocs_auth";
 export const authCookieOptions: CookieOptions = {
   httpOnly: true,
   secure: env.NODE_ENV === "production",
-  sameSite: "Strict",
+  sameSite: env.NODE_ENV === "production" ? "Strict" : "Lax",
   maxAge: 60 * 60 * 24 * 7, // 7 days
   path: "/",
 };

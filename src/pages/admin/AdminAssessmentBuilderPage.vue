@@ -4,6 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout.vue";
+import Icon from "@/components/Icon.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -177,7 +178,7 @@ const typeLabels: Record<string, string> = {
     <div v-else class="mx-auto max-w-5xl space-y-8">
       <div class="flex items-center gap-2 text-sm text-text-muted">
         <button @click="router.back()" class="hover:text-primary">
-          ← Назад
+          <Icon name="ArrowLeft" /> Назад
         </button>
       </div>
 
@@ -281,7 +282,7 @@ const typeLabels: Record<string, string> = {
                     :key="opt.id"
                     :class="['flex items-center gap-2 text-sm', opt.isCorrect ? 'font-medium text-success' : 'text-text-secondary']"
                   >
-                    <span>{{ opt.isCorrect ? '✓' : '○' }}</span>
+                    <span><Icon :name="opt.isCorrect ? 'CheckCircle2' : 'Circle'" /></span>
                     {{ opt.optionText }}
                   </div>
                 </div>
@@ -338,7 +339,7 @@ const typeLabels: Record<string, string> = {
                       <input v-model="opt.isCorrect" type="checkbox" class="rounded border-border" />
                       Верный
                     </label>
-                    <button v-if="editQuestion.options.length > 1" @click="removeEditOption(idx)" class="text-text-muted hover:text-danger">✕</button>
+                    <button v-if="editQuestion.options.length > 1" @click="removeEditOption(idx)" class="text-text-muted hover:text-danger"><Icon name="X" /></button>
                   </div>
                 </div>
               </div>
@@ -417,7 +418,7 @@ const typeLabels: Record<string, string> = {
                     @click="removeOption(idx)"
                     class="text-text-muted hover:text-danger"
                   >
-                    ✕
+                    <Icon name="X" />
                   </button>
                 </div>
               </div>

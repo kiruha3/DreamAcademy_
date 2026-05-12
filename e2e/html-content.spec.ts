@@ -11,17 +11,15 @@ test.describe('HTML Content Module', () => {
 
   test('new HTML module renders correctly', async ({ page }) => {
     await page.goto('/#/module/3');
-    await page.waitForSelector('h1');
-    await expect(page.locator('h1')).toContainText('HTML-урок: Введение');
-
-    // Wait for iframe to load
-    await page.waitForSelector('iframe');
+    // Module 3 is HTML ZIP — no h1 in Vue template, check iframe and bottom bar
+    await expect(page.locator('iframe')).toBeVisible();
+    await expect(page.locator('text=HTML-урок: Введение').first()).toBeVisible();
 
     // Take screenshot
     await page.screenshot({ path: 'screenshots/06_html_module.png', fullPage: true });
 
-    // Verify action button exists (either "Завершить модуль" or "Пройдено")
-    await expect(page.locator('button', { hasText: /Завершить модуль|Следующий модуль|К программе/ })).toBeVisible();
+    // Verify action button exists (either "Завершить" or "Пройдено")
+    await expect(page.locator('button', { hasText: /Завершить|Следующий|К курсу|К тесту/ })).toBeVisible();
   });
 
   test('HTML content inside iframe is visible', async ({ page }) => {

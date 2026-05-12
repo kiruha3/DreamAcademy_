@@ -4,6 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout.vue";
+import Icon from "@/components/Icon.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -218,7 +219,7 @@ const typeLabels: Record<string, string> = {
     <div v-else class="mx-auto max-w-5xl space-y-8">
       <div class="flex items-center gap-2 text-sm text-text-muted">
         <button @click="router.push(`/admin/courses/${moduleItem.courseVersion?.courseId}`)" class="hover:text-primary">
-          ← Назад к курсу
+          <Icon name="ArrowLeft" /> Назад к курсу
         </button>
       </div>
 

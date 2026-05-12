@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { useRoute, useRouter } from "vue-router";
 import { trpc } from "@/lib/trpc";
 import { computed, ref, watch, onBeforeUnmount } from "vue";
+import Icon from "@/components/Icon.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -124,7 +125,7 @@ function goNext() {
             :to="`/course/${data.program?.slug}`"
             class="hover:text-primary flex items-center gap-1 transition"
           >
-            <span>←</span>
+            <span><Icon name="ArrowLeft" /></span>
             <span class="truncate">{{ data.program?.title }}</span>
           </RouterLink>
           <span class="text-border">/</span>
@@ -133,7 +134,7 @@ function goNext() {
             v-if="isCompleted"
             class="rounded-full bg-success-light px-2 py-0.5 text-xs font-medium text-success shrink-0"
           >
-            ✓ Пройдено
+            <Icon name="Check" /> Пройдено
           </span>
         </div>
       </div>
@@ -163,14 +164,14 @@ function goNext() {
           @click="router.push(`/module/${data.prevModule.id}`)"
           class="rounded-lg border border-border px-3 py-2 text-sm font-medium text-text-secondary transition hover:bg-background"
         >
-          ← Предыдущий
+          <Icon name="ArrowLeft" /> Предыдущий
         </button>
         <button
           v-else-if="data.prevModule"
           disabled
           class="cursor-not-allowed rounded-lg border border-border px-3 py-2 text-sm font-medium text-text-muted opacity-50"
         >
-          🔒
+          <Icon name="Lock" />
         </button>
       </div>
 
@@ -194,7 +195,7 @@ function goNext() {
           @click="goNext"
           class="rounded-lg bg-success px-4 py-2 text-sm font-medium text-text-inverse transition hover:bg-[#16A34A]"
         >
-          {{ data.nextModule ? "Следующий →" : data.assessment ? "К тесту →" : "К курсу →" }}
+          {{ data.nextModule ? "Следующий" : data.assessment ? "К тесту" : "К курсу" }} <Icon name="ArrowRight" />
         </button>
       </div>
     </div>
@@ -224,7 +225,7 @@ function goNext() {
             v-if="isCompleted"
             class="rounded-full bg-success-light px-3 py-1 text-sm font-medium text-success"
           >
-            ✓ Пройдено
+            <Icon name="Check" /> Пройдено
           </span>
         </div>
 
@@ -255,14 +256,14 @@ function goNext() {
             @click="router.push(`/module/${data.prevModule.id}`)"
             class="w-full rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary transition hover:bg-background sm:w-auto"
           >
-            ← Предыдущий модуль
+            <Icon name="ArrowLeft" /> Предыдущий модуль
           </button>
           <button
             v-else-if="data.prevModule"
             disabled
             class="w-full cursor-not-allowed rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-muted sm:w-auto"
           >
-            🔒 Предыдущий модуль
+            <Icon name="Lock" /> Предыдущий модуль
           </button>
           <div v-else class="hidden sm:block" />
 
@@ -280,7 +281,7 @@ function goNext() {
               @click="goNext"
               class="w-full rounded-lg bg-success px-6 py-2 text-sm font-medium text-text-inverse transition hover:bg-[#16A34A] sm:w-auto"
             >
-              {{ data.nextModule ? "Следующий модуль →" : data.assessment ? "Перейти к тесту →" : "К программе →" }}
+              {{ data.nextModule ? "Следующий модуль" : data.assessment ? "Перейти к тесту" : "К программе" }} <Icon name="ArrowRight" />
             </button>
           </div>
         </div>

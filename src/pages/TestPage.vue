@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { useRoute, useRouter } from "vue-router";
 import { trpc } from "@/lib/trpc";
+import Icon from "@/components/Icon.vue";
 import { ref, computed, onUnmounted, watch } from "vue";
 
 const route = useRoute();
@@ -224,7 +225,7 @@ const isPassed = computed(() => resultData.value?.isPassed);
             class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full text-3xl"
             :class="isPassed ? 'bg-success-light text-success' : 'bg-danger-light text-danger'"
           >
-            {{ isPassed ? "✓" : "✕" }}
+            <Icon :name="isPassed ? 'Check' : 'X'" />
           </div>
           <h2 class="text-2xl font-bold" :class="isPassed ? 'text-success' : 'text-danger'">
             {{ isPassed ? "Тест пройден!" : "Тест не пройден" }}

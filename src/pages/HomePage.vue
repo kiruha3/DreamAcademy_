@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
+import Icon from "@/components/Icon.vue";
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -54,7 +55,7 @@ function handleCTA() {
           <!-- Employee -->
           <div class="rounded-2xl border border-border bg-surface p-8 shadow-sm">
             <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-info-light text-2xl">
-              👨‍💼
+              <Icon name="UserTie" :size="24" />
             </div>
             <h3 class="mb-2 text-xl font-semibold text-foreground">Сотрудники</h3>
             <p class="text-text-secondary">
@@ -65,7 +66,7 @@ function handleCTA() {
           <!-- Partner -->
           <div class="rounded-2xl border border-border bg-surface p-8 shadow-sm">
             <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-success-light text-2xl">
-              🤝
+              <Icon name="Handshake" :size="24" />
             </div>
             <h3 class="mb-2 text-xl font-semibold text-foreground">Партнёры</h3>
             <p class="text-text-secondary">
@@ -76,7 +77,7 @@ function handleCTA() {
           <!-- Integrator -->
           <div class="rounded-2xl border border-border bg-surface p-8 shadow-sm">
             <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#F3E8FF] text-2xl">
-              🔧
+              <Icon name="Wrench" :size="24" />
             </div>
             <h3 class="mb-2 text-xl font-semibold text-foreground">Интеграторы</h3>
             <p class="text-text-secondary">
@@ -93,13 +94,13 @@ function handleCTA() {
         <h2 class="mb-8 text-3xl font-bold text-foreground">Структура обучения</h2>
         <div class="flex flex-wrap items-center justify-center gap-3 text-text-secondary">
           <span class="rounded-full bg-accent px-4 py-2 text-sm font-medium text-primary-dark">Программа</span>
-          <span class="text-text-muted">→</span>
+          <span class="text-text-muted"><Icon name="ArrowRight" :size="16" /></span>
           <span class="rounded-full bg-accent px-4 py-2 text-sm font-medium text-primary-dark">Курс</span>
-          <span class="text-text-muted">→</span>
+          <span class="text-text-muted"><Icon name="ArrowRight" :size="16" /></span>
           <span class="rounded-full bg-accent px-4 py-2 text-sm font-medium text-primary-dark">Модуль</span>
-          <span class="text-text-muted">→</span>
+          <span class="text-text-muted"><Icon name="ArrowRight" :size="16" /></span>
           <span class="rounded-full bg-accent px-4 py-2 text-sm font-medium text-primary-dark">Тест</span>
-          <span class="text-text-muted">→</span>
+          <span class="text-text-muted"><Icon name="ArrowRight" :size="16" /></span>
           <span class="rounded-full bg-accent px-4 py-2 text-sm font-medium text-primary-dark">Сертификат</span>
         </div>
         <p class="mt-6 text-text-muted">

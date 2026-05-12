@@ -4,6 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout.vue";
+import Icon from "@/components/Icon.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -195,7 +196,7 @@ const typeLabels: Record<string, string> = {
     <div v-else class="mx-auto max-w-5xl space-y-8">
       <div class="flex items-center gap-2 text-sm text-text-muted">
         <button @click="router.push(`/admin/programs/${course.programVersion?.programId}`)" class="hover:text-primary">
-          ← Назад к программе
+          <Icon name="ArrowLeft" /> Назад к программе
         </button>
       </div>
 
@@ -325,7 +326,7 @@ const typeLabels: Record<string, string> = {
                   Обязательный
                 </span>
                 <span v-if="mod.isLocked" class="rounded-full bg-warning-light px-2 py-0.5 text-xs text-warning">
-                  🔒 Заблокирован
+                  <Icon name="Lock" /> Заблокирован
                 </span>
               </div>
             </div>
@@ -334,15 +335,17 @@ const typeLabels: Record<string, string> = {
                 @click="moveModule(index, -1)"
                 :disabled="index === 0"
                 class="rounded-md border border-border px-2 py-1 text-xs text-text-secondary transition hover:bg-background disabled:opacity-30"
+                data-testid="reorder-up"
               >
-                ↑
+                <Icon name="ArrowUp" />
               </button>
               <button
                 @click="moveModule(index, 1)"
                 :disabled="index === (modulesQuery.data.value?.items?.length ?? 0) - 1"
                 class="rounded-md border border-border px-2 py-1 text-xs text-text-secondary transition hover:bg-background disabled:opacity-30"
+                data-testid="reorder-down"
               >
-                ↓
+                <Icon name="ArrowDown" />
               </button>
               <button
                 @click="router.push(`/admin/modules/${mod.id}`)"

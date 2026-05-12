@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/vue-query";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout.vue";
+import Icon from "@/components/Icon.vue";
 
 const { data: stats } = useQuery({
   queryKey: ["admin", "stats"],
@@ -46,7 +47,7 @@ const { data: programsData } = useQuery({
           to="/admin/programs"
           class="rounded-xl border border-border bg-surface p-6 shadow-sm transition hover:shadow-md"
         >
-          <div class="text-3xl mb-2">📚</div>
+          <div class="text-3xl mb-2"><Icon name="BookOpen" :size="32" /></div>
           <h3 class="font-semibold text-foreground">Программы</h3>
           <p class="text-sm text-text-muted mt-1">Управление учебными программами</p>
         </RouterLink>
@@ -55,7 +56,7 @@ const { data: programsData } = useQuery({
           to="/admin/users"
           class="rounded-xl border border-border bg-surface p-6 shadow-sm transition hover:shadow-md"
         >
-          <div class="text-3xl mb-2">👥</div>
+          <div class="text-3xl mb-2"><Icon name="Users" :size="32" /></div>
           <h3 class="font-semibold text-foreground">Пользователи</h3>
           <p class="text-sm text-text-muted mt-1">Управление пользователями и ролями</p>
         </RouterLink>
@@ -64,7 +65,7 @@ const { data: programsData } = useQuery({
           to="/admin/invitations"
           class="rounded-xl border border-border bg-surface p-6 shadow-sm transition hover:shadow-md"
         >
-          <div class="text-3xl mb-2">📧</div>
+          <div class="text-3xl mb-2"><Icon name="Mail" :size="32" /></div>
           <h3 class="font-semibold text-foreground">Приглашения</h3>
           <p class="text-sm text-text-muted mt-1">Отправка приглашений новым пользователям</p>
         </RouterLink>
@@ -89,7 +90,7 @@ const { data: programsData } = useQuery({
               :to="`/admin/programs/${program.id}`"
               class="text-sm font-medium text-primary hover:text-primary-dark"
             >
-              Открыть →
+              Открыть <Icon name="ArrowRight" />
             </RouterLink>
           </div>
           <div v-if="!programsData?.items?.length" class="px-6 py-4 text-sm text-text-muted">

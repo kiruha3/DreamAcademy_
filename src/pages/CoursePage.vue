@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/vue-query";
 import { useRoute, useRouter } from "vue-router";
 import { trpc } from "@/lib/trpc";
+import Icon from "@/components/Icon.vue";
 import { computed } from "vue";
 
 const route = useRoute();
@@ -159,7 +160,7 @@ function getContentTypeLabel(contents: any[]) {
                   disabled
                   class="w-full cursor-not-allowed rounded-lg bg-border px-4 py-2 text-sm font-medium text-text-secondary sm:w-auto"
                 >
-                  🔒 Заблокировано
+                  <Icon name="Lock" /> Заблокировано
                 </button>
               </div>
 

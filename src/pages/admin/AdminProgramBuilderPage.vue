@@ -4,6 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout.vue";
+import Icon from "@/components/Icon.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -278,15 +279,17 @@ const statusLabels: Record<string, { text: string; class: string }> = {
                 @click="moveCourse(index, -1)"
                 :disabled="index === 0"
                 class="rounded-md border border-border px-2 py-1 text-xs text-text-secondary transition hover:bg-background disabled:opacity-30"
+                data-testid="reorder-up"
               >
-                ↑
+                <Icon name="ArrowUp" />
               </button>
               <button
                 @click="moveCourse(index, 1)"
                 :disabled="index === (coursesQuery.data.value?.items?.length ?? 0) - 1"
                 class="rounded-md border border-border px-2 py-1 text-xs text-text-secondary transition hover:bg-background disabled:opacity-30"
+                data-testid="reorder-down"
               >
-                ↓
+                <Icon name="ArrowDown" />
               </button>
               <button
                 @click="router.push(`/admin/courses/${course.id}`)"

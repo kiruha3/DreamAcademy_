@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRoute, RouterLink } from "vue-router";
+import Icon from "./Icon.vue";
 
 const route = useRoute();
 const sidebarOpen = ref(false);
 
 const navItems = [
-  { path: "/admin", label: "Дашборд", icon: "📊" },
-  { path: "/admin/programs", label: "Программы", icon: "📚" },
-  { path: "/admin/users", label: "Пользователи", icon: "👥" },
-  { path: "/admin/invitations", label: "Приглашения", icon: "📧" },
+  { path: "/admin", label: "Дашборд", icon: "LayoutDashboard" },
+  { path: "/admin/programs", label: "Программы", icon: "BookOpen" },
+  { path: "/admin/users", label: "Пользователи", icon: "Users" },
+  { path: "/admin/invitations", label: "Приглашения", icon: "Mail" },
 ];
 
 function isActive(path: string) {
@@ -37,7 +38,7 @@ function isActive(path: string) {
         <div class="flex items-center justify-between px-4 py-4">
           <h2 class="text-lg font-bold text-foreground">Админ-панель</h2>
           <button @click="sidebarOpen = false" class="lg:hidden text-text-muted">
-            ✕
+            <Icon name="X" />
           </button>
         </div>
 
@@ -54,7 +55,7 @@ function isActive(path: string) {
             ]"
             @click="sidebarOpen = false"
           >
-            <span>{{ item.icon }}</span>
+            <Icon :name="item.icon" />
             {{ item.label }}
           </RouterLink>
         </nav>
@@ -66,7 +67,7 @@ function isActive(path: string) {
       <!-- Mobile header -->
       <div class="flex items-center gap-3 border-b border-border bg-surface px-4 py-3 lg:hidden">
         <button @click="sidebarOpen = true" class="text-text-secondary">
-          ☰
+          <Icon name="Menu" />
         </button>
         <span class="font-semibold text-foreground">Админ-панель</span>
       </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useQuery } from "@tanstack/vue-query";
 import { trpc } from "@/lib/trpc";
+import Icon from "@/components/Icon.vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -51,14 +52,14 @@ const targetBadges: Record<string, string> = {
             >
               {{ targetLabels[program.targetAudience] ?? program.targetAudience }}
             </span>
-            <span v-if="program.hasCertification" class="text-lg" title="С сертификатом">🎓</span>
+            <span v-if="program.hasCertification" class="text-lg" title="С сертификатом"><Icon name="GraduationCap" /></span>
           </div>
           <h3 class="mt-3 text-lg font-semibold text-foreground">{{ program.title }}</h3>
           <p v-if="program.description" class="mt-1 text-sm text-text-secondary line-clamp-2">
             {{ program.description }}
           </p>
           <div class="mt-4 flex items-center text-sm font-medium text-primary">
-            Перейти →
+            Перейти <Icon name="ArrowRight" />
           </div>
         </div>
       </div>

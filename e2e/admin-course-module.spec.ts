@@ -20,12 +20,12 @@ test.describe.serial('Admin Course & Module Management', () => {
 
     // Check reorder buttons exist
     const firstModule = page.locator('[data-testid="module-item"]').first();
-    await expect(firstModule.locator('button:has-text("↑")')).toBeVisible();
-    await expect(firstModule.locator('button:has-text("↓")')).toBeVisible();
+    await expect(firstModule.locator('[data-testid="reorder-up"]')).toBeVisible();
+    await expect(firstModule.locator('[data-testid="reorder-down"]')).toBeVisible();
 
     // Move second module up
     const secondModule = page.locator('[data-testid="module-item"]').nth(1);
-    await secondModule.locator('button:has-text("↑")').click();
+    await secondModule.locator('[data-testid="reorder-up"]').click();
     await page.waitForTimeout(500);
     await page.screenshot({ path: 'screenshots/admin_course_02_reordered.png' });
   });

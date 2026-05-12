@@ -61,9 +61,11 @@ test.describe('Learning Flow', () => {
 
   test('module page shows content', async ({ page }) => {
     await page.goto('/#/module/1');
-    await expect(page.locator('h1')).toContainText('Введение');
+    // Module 1 is HTML ZIP — no h1 in Vue template, check iframe and bottom bar
+    await expect(page.locator('iframe')).toBeVisible();
+    await expect(page.locator('text=Введение').first()).toBeVisible();
     // Module page should show either complete button or completed badge
-    await expect(page.locator('button', { hasText: /Завершить модуль|Следующий модуль|К программе/ })).toBeVisible();
+    await expect(page.locator('button', { hasText: /Завершить|Следующий|К курсу|К тесту/ })).toBeVisible();
   });
 
   test('complete module and see progress update', async ({ browser, request }) => {
@@ -82,8 +84,8 @@ test.describe('Learning Flow', () => {
     await page.waitForURL('http://localhost:3000/#/');
 
     await page.goto('/#/module/1');
-    await expect(page.locator('button', { hasText: 'Завершить модуль' })).toBeVisible();
-    await page.click('button:has-text("Завершить модуль")');
+    await expect(page.locator('button', { hasText: 'Завершить' })).toBeVisible();
+    await page.click('button:has-text("Завершить")');
     // After completion, should show "✓ Пройдено" or "Следующий модуль"
     await expect(page.locator('text=Пройдено')).toBeVisible({ timeout: 5000 });
 
@@ -106,14 +108,15 @@ test.describe('Learning Flow', () => {
     await page.waitForURL('http://localhost:3000/#/');
 
     await page.goto('/#/module/1');
-    await expect(page.locator('button', { hasText: 'Завершить модуль' })).toBeVisible();
-    await page.click('button:has-text("Завершить модуль")');
+    await expect(page.locator('button', { hasText: 'Завершить' })).toBeVisible();
+    await page.click('button:has-text("Завершить")');
     await expect(page.locator('text=Пройдено')).toBeVisible({ timeout: 5000 });
 
     // Reload page — should still show "Пройдено", not "Завершить модуль"
     await page.reload();
-    await expect(page.locator('h1')).toContainText('Введение');
-    await expect(page.locator('button', { hasText: 'Завершить модуль' })).not.toBeVisible();
+    await expect(page.locator('iframe')).toBeVisible();
+    await expect(page.locator('text=Введение').first()).toBeVisible();
+    await expect(page.locator('button', { hasText: 'Завершить' })).not.toBeVisible();
     await expect(page.locator('text=Пройдено')).toBeVisible();
 
     await context.close();
@@ -122,8 +125,10 @@ test.describe('Learning Flow', () => {
   test('prev/next navigation between modules', async ({ page }) => {
     // Module 3 should have "← Предыдущий модуль" button
     await page.goto('/#/module/3');
-    await expect(page.locator('h1')).toContainText('HTML-урок: Введение');
-    await expect(page.locator('button', { hasText: 'Предыдущий модуль' })).toBeVisible();
+    // Module 3 is HTML ZIP — check iframe and bottom bar
+    await expect(page.locator('iframe')).toBeVisible();
+    await expect(page.locator('text=HTML-урок: Введение').first()).toBeVisible();
+    await expect(page.locator('button', { hasText: 'Предыдущий' })).toBeVisible();
   });
 
   test('assessment page loads', async ({ page }) => {
@@ -179,10 +184,7 @@ test.describe('Learning Flow', () => {
 
     // Now view as student
     await page.goto('/#/module/1');
-    await expect(page.locator('h1')).toContainText('Введение');
-
-    // Check iframe is present and loaded
-    const iframe = page.locator('iframe[sandbox="allow-scripts"]');
-    await expect(iframe).toBeVisible();
+    await expect(page.locator('iframe[sandbox="allow-scripts"]')).toBeVisible();
+    await expect(page.locator('text=Введение').first()).toBeVisible();
   });
 });

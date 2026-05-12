@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/vue-query";
 import { useRoute } from "vue-router";
 import { trpc } from "@/lib/trpc";
+import Icon from "@/components/Icon.vue";
 
 const route = useRoute();
 const number = route.params.number as string;
@@ -77,7 +78,7 @@ function formatDate(date: string | null) {
             onclick="window.print()"
             class="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-text-inverse transition hover:bg-primary-dark"
           >
-            🖨️ Печать
+            <Icon name="Printer" /> Печать
           </button>
         </div>
       </div>
