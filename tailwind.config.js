@@ -13,8 +13,13 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
-          dark: "#0077B6",
-          light: "#E6F7FE",
+          dark: "#0098D4",
+          light: "#E8F7FE",
+        },
+        navy: {
+          DEFAULT: "#29364A",
+          light: "#2B384C",
+          dark: "#1E2A3A",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -58,10 +63,10 @@ export default {
           light: "#FEE2E2",
         },
         info: {
-          DEFAULT: "#00A8E8",
-          light: "#E6F7FE",
+          DEFAULT: "#00AEEF",
+          light: "#E8F7FE",
         },
-        "dark-header": "#2D3748",
+        "dark-header": "#29364A",
         "code-bg": "#F7FAFC",
         "code-border": "#E2E8F0",
       },

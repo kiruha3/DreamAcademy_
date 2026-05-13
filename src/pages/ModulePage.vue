@@ -2,12 +2,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { useRoute, useRouter } from "vue-router";
 import { trpc } from "@/lib/trpc";
+import { useToast } from "@/composables/useToast";
 import { computed, ref, watch, onBeforeUnmount } from "vue";
 import Icon from "@/components/Icon.vue";
 
 const route = useRoute();
 const router = useRouter();
 const queryClient = useQueryClient();
+const { error: toastError } = useToast();
 const moduleId = computed(() => Number(route.params.id));
 
 const { data, isLoading } = useQuery({
@@ -35,8 +37,8 @@ const completeMutation = useMutation({
       queryKey: ["progress", "module", moduleId],
     });
   },
-  onError: (err) => {
-    alert('Ошибка: ' + (err.message || 'Не удалось завершить модуль'));
+  onError: (err: any) => {
+    toastError('Ошибка завершения модуля', err.message || 'Не удалось завершить модуль');
   },
 });
 

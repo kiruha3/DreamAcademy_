@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { router, adminProcedure } from "../trpc";
+import { router, adminProcedure, superAdminProcedure } from "../trpc";
 import { db } from "../queries/connection";
 import { users, userProgramEnrollments, programs, certificates } from "@db/schema";
 import { eq, and, like, or, desc, count } from "drizzle-orm";
@@ -308,6 +308,53 @@ export const adminUserRouter = router({
       activeUsers: activeCount?.count ?? 0,
       programs: programCount?.count ?? 0,
       certificates: certCount?.count ?? 0,
+    };
+  }),
+
+  dashboard: superAdminProcedure.query(async () => {
+    const [userCount] = await db.select({ count: count() }).from(users);
+    const [activeCount] = await db
+      .select({ count: count() })
+      .from(users)
+      .where(eq(users.status, "active"));
+    const [pendingCount] = await db
+      .select({ count: count() })
+      .from(users)
+      .where(eq(users.status, "pending"));
+    const [programCount] = await db
+      .select({ count: count() })
+      .from(programs);
+    const [certCount] = await db
+      .select({ count: count() })
+      .from(certificates);
+
+    // Recent users (last 10)
+    const recentUsers = await db.query.users.findMany({
+      orderBy: desc(users.createdAt),
+      limit: 10,
+      columns: { id: true, name: true, email: true, role: true, status: true, createdAt: true },
+    });
+
+    // System roles distribution
+    const roleDistribution = await db
+      .select({ role: users.role, count: count() })
+      .from(users)
+      .groupBy(users.role);
+
+    return {
+      stats: {
+        usersTotal: userCount?.count ?? 0,
+        activeNow: activeCount?.count ?? 0,
+        pendingUsers: pendingCount?.count ?? 0,
+        programsTotal: programCount?.count ?? 0,
+        certificatesIssued: certCount?.count ?? 0,
+      },
+      recentUsers,
+      systemRoles: roleDistribution.map((r) => ({
+        role: r.role,
+        count: r.count,
+      })),
+      attentionItems: [] as any[], // Placeholder for MVP
     };
   }),
 });

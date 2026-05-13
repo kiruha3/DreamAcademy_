@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { RouterView } from "vue-router";
+import { Toaster } from "vue-sonner";
 import { useAuthStore } from "@/stores/auth";
 import Header from "@/components/Header.vue";
 
@@ -17,5 +18,6 @@ onMounted(async () => {
     <main class="flex-1 min-h-0 overflow-y-auto">
       <RouterView />
     </main>
+    <Toaster position="top-right" :rich-colors="true" />
   </div>
 </template>

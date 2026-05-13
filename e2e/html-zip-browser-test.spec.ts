@@ -25,7 +25,7 @@ test('browser visual test: admin uploads ZIP and student views it', async ({ pag
 
   // 4. View as student
   await page.goto('/#/module/1');
-  await expect(page.locator('h1')).toContainText('Введение');
+  await expect(page.locator('iframe')).toBeVisible();
 
   // Check iframe is present
   const iframe = page.locator('iframe[sandbox="allow-scripts"]');

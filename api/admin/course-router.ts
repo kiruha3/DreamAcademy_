@@ -137,6 +137,7 @@ export const adminCourseRouter = router({
         description: z.string().optional(),
         targetRole: z.enum(["all", "employee", "partner", "integrator"]).optional(),
         isMandatory: z.boolean().optional(),
+        image: z.string().optional().or(z.literal("")),
       })
     )
     .mutation(async ({ input }) => {

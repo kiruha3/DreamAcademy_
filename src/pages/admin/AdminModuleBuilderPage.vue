@@ -3,12 +3,14 @@ import { ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { trpc } from "@/lib/trpc";
+import { useToast } from "@/composables/useToast";
 import AdminLayout from "@/components/AdminLayout.vue";
 import Icon from "@/components/Icon.vue";
 
 const route = useRoute();
 const router = useRouter();
 const queryClient = useQueryClient();
+const { error: toastError } = useToast();
 const moduleId = Number(route.params.id);
 
 const { data: moduleItem, isLoading } = useQuery({
@@ -60,7 +62,7 @@ const deleteAssessmentMutation = useMutation({
     queryClient.invalidateQueries({ queryKey: ["admin", "assessments", "module", moduleId] });
   },
   onError: (err: any) => {
-    alert("Ошибка удаления теста: " + (err?.message || "Не удалось удалить тест"));
+    toastError("Ошибка удаления теста", err?.message || "Не удалось удалить тест");
   },
 });
 

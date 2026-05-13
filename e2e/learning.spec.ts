@@ -47,7 +47,7 @@ test.describe('Learning Flow', () => {
 
   test('courses page shows available programs', async ({ page }) => {
     await page.goto('/#/courses');
-    await expect(page.locator('h1')).toContainText('Доступные программы');
+    await expect(page.locator('h1')).toContainText('Курсы обучения');
     await expect(page.getByRole('heading', { name: 'Основы DreamDocs' }).first()).toBeVisible();
   });
 
@@ -137,7 +137,21 @@ test.describe('Learning Flow', () => {
     await expect(page.locator('button', { hasText: 'Начать тест' })).toBeVisible();
   });
 
-  test('take assessment and see result', async ({ page }) => {
+  test('take assessment and see result', async ({ browser, request }) => {
+    const adminToken = await getAdminToken(request);
+    const { email, password } = await createTestUser(request, adminToken);
+
+    // Use fresh browser context (no admin cookies)
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    // Login as new user
+    await page.goto('/#/login');
+    await page.fill('input[type="email"]', email);
+    await page.fill('input[type="password"]', password);
+    await page.click('button[type="submit"]');
+    await page.waitForURL('http://localhost:3000/#/');
+
     await page.goto('/#/assessment/1');
     await page.waitForSelector('button:has-text("Начать тест")');
     await page.click('button:has-text("Начать тест")');
@@ -159,11 +173,13 @@ test.describe('Learning Flow', () => {
     // Wait for result screen
     await expect(page.locator('text=Тест пройден!')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('text=Результат:')).toBeVisible();
+
+    await context.close();
   });
 
   test('profile page loads', async ({ page }) => {
     await page.goto('/#/profile');
-    await expect(page.locator('h1')).toContainText('Профиль');
+    await expect(page.locator('h1')).toContainText('Добро пожаловать');
     await expect(page.getByRole('heading', { name: 'Super Admin' })).toBeVisible();
   });
 

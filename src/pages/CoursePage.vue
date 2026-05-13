@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/vue-query";
 import { useRoute, useRouter } from "vue-router";
 import { trpc } from "@/lib/trpc";
 import Icon from "@/components/Icon.vue";
+import FallbackCover from "@/components/FallbackCover.vue";
 import { computed } from "vue";
 
 const route = useRoute();
@@ -104,12 +105,31 @@ function getContentTypeLabel(contents: any[]) {
           <span class="text-foreground">{{ courseData.program.title }}</span>
         </div>
 
-        <!-- Header -->
-        <div>
-          <h1 class="text-3xl font-bold text-foreground">{{ courseData.program.title }}</h1>
-          <p v-if="courseData.program.description" class="mt-2 text-text-secondary">
-            {{ courseData.program.description }}
-          </p>
+        <!-- Cover + Header -->
+        <div class="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
+          <div class="relative h-48 w-full overflow-hidden">
+            <img
+              v-if="courseData.program.coverImageUrl"
+              :src="courseData.program.coverImageUrl"
+              :alt="courseData.program.title"
+              class="h-full w-full object-cover"
+            />
+            <FallbackCover
+              v-else
+              :slug="courseData.program.slug"
+              :title="courseData.program.title"
+              class="h-full"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            <div class="absolute bottom-0 left-0 p-6">
+              <h1 class="text-2xl font-bold text-white sm:text-3xl">
+                {{ courseData.program.title }}
+              </h1>
+              <p v-if="courseData.program.description" class="mt-1 max-w-xl text-sm text-white/80">
+                {{ courseData.program.description }}
+              </p>
+            </div>
+          </div>
         </div>
 
         <!-- Courses & Modules -->

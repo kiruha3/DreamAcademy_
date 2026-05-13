@@ -2,9 +2,11 @@
 import { ref, watch } from "vue";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { trpc } from "@/lib/trpc";
+import { useToast } from "@/composables/useToast";
 import AdminLayout from "@/components/AdminLayout.vue";
 
 const queryClient = useQueryClient();
+const { error: toastError, success: toastSuccess } = useToast();
 const search = ref("");
 const roleFilter = ref<"" | "user" | "employee" | "partner" | "integrator" | "admin" | "superadmin">("");
 const limit = ref(20);
@@ -109,9 +111,10 @@ const createMutation = useMutation({
     queryClient.invalidateQueries({ queryKey: ['admin', 'users', 'list'] });
     showCreateModal.value = false;
     newUser.value = { name: '', email: '', password: '', role: 'employee' };
+    toastSuccess('Пользователь создан');
   },
   onError: (err: any) => {
-    alert('Ошибка создания: ' + (err?.message || 'Не удалось создать пользователя'));
+    toastError('Ошибка создания', err?.message || 'Не удалось создать пользователя');
   },
 });
 
@@ -121,9 +124,10 @@ const updateMutation = useMutation({
     queryClient.invalidateQueries({ queryKey: ['admin', 'users', 'list'] });
     showEditModal.value = false;
     editUser.value = { id: 0, name: '', email: '', role: 'employee', password: '' };
+    toastSuccess('Изменения сохранены');
   },
   onError: (err: any) => {
-    alert('Ошибка сохранения: ' + (err?.message || 'Не удалось обновить пользователя'));
+    toastError('Ошибка сохранения', err?.message || 'Не удалось обновить пользователя');
   },
 });
 
@@ -131,9 +135,10 @@ const deleteMutation = useMutation({
   mutationFn: trpc.admin.user.delete.mutate,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['admin', 'users', 'list'] });
+    toastSuccess('Пользователь удалён');
   },
   onError: (err: any) => {
-    alert('Ошибка удаления: ' + (err?.message || 'Не удалось удалить пользователя'));
+    toastError('Ошибка удаления', err?.message || 'Не удалось удалить пользователя');
   },
 });
 

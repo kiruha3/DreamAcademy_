@@ -277,6 +277,110 @@ export const Settings = defineComponent({
   },
 });
 
+export const Crown = defineComponent({
+  props: { size: Number, class: String },
+  setup(props) {
+    return () =>
+      h("svg", svgProps(props.size, props.class), [
+        h("path", { d: "m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3-2h14v2H5z" }),
+      ]);
+  },
+});
+
+export const UserPlus = defineComponent({
+  props: { size: Number, class: String },
+  setup(props) {
+    return () =>
+      h("svg", svgProps(props.size, props.class), [
+        h("path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" }),
+        h("circle", { cx: 9, cy: 7, r: 4 }),
+        h("line", { x1: 19, y1: 8, x2: 19, y2: 14 }),
+        h("line", { x1: 22, y1: 11, x2: 16, y2: 11 }),
+      ]);
+  },
+});
+
+export const Plus = defineComponent({
+  props: { size: Number, class: String },
+  setup(props) {
+    return () =>
+      h("svg", svgProps(props.size, props.class), [
+        h("line", { x1: 12, y1: 5, x2: 12, y2: 19 }),
+        h("line", { x1: 5, y1: 12, x2: 19, y2: 12 }),
+      ]);
+  },
+});
+
+export const Upload = defineComponent({
+  props: { size: Number, class: String },
+  setup(props) {
+    return () =>
+      h("svg", svgProps(props.size, props.class), [
+        h("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
+        h("polyline", { points: "17 8 12 3 7 8" }),
+        h("line", { x1: 12, y1: 3, x2: 12, y2: 15 }),
+      ]);
+  },
+});
+
+export const FileBarChart = defineComponent({
+  props: { size: Number, class: String },
+  setup(props) {
+    return () =>
+      h("svg", svgProps(props.size, props.class), [
+        h("path", { d: "M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" }),
+        h("polyline", { points: "14 2 14 8 20 8" }),
+        h("path", { d: "M12 18v-6" }),
+        h("path", { d: "M8 18v-4" }),
+        h("path", { d: "M16 18v-2" }),
+      ]);
+  },
+});
+
+export const AlertTriangle = defineComponent({
+  props: { size: Number, class: String },
+  setup(props) {
+    return () =>
+      h("svg", svgProps(props.size, props.class), [
+        h("path", { d: "m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z" }),
+        h("line", { x1: 12, y1: 9, x2: 12, y2: 13 }),
+        h("line", { x1: 12, y1: 17, x2: 12.01, y2: 17 }),
+      ]);
+  },
+});
+
+export const Search = defineComponent({
+  props: { size: Number, class: String },
+  setup(props) {
+    return () =>
+      h("svg", svgProps(props.size, props.class), [
+        h("circle", { cx: 11, cy: 11, r: 8 }),
+        h("line", { x1: 21, y1: 21, x2: 16.65, y2: 16.65 }),
+      ]);
+  },
+});
+
+export const Activity = defineComponent({
+  props: { size: Number, class: String },
+  setup(props) {
+    return () =>
+      h("svg", svgProps(props.size, props.class), [
+        h("polyline", { points: "22 12 18 12 15 21 9 3 6 12 2 12" }),
+      ]);
+  },
+});
+
+export const Award = defineComponent({
+  props: { size: Number, class: String },
+  setup(props) {
+    return () =>
+      h("svg", svgProps(props.size, props.class), [
+        h("circle", { cx: 12, cy: 8, r: 7 }),
+        h("polyline", { points: "8.21 13.89 7 23 12 20 17 23 15.79 13.88" }),
+      ]);
+  },
+});
+
 export const Briefcase = defineComponent({
   props: { size: Number, class: String },
   setup(props) {
@@ -284,6 +388,90 @@ export const Briefcase = defineComponent({
       h("svg", svgProps(props.size, props.class), [
         h("rect", { x: 2, y: 7, width: 20, height: 14, rx: 2, ry: 2 }),
         h("path", { d: "M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" }),
+      ]);
+  },
+});
+
+export const LogOut = defineComponent({
+  props: { size: Number, class: String },
+  setup(props) {
+    return () =>
+      h("svg", svgProps(props.size, props.class), [
+        h("path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" }),
+        h("polyline", { points: "16 17 21 12 16 7" }),
+        h("line", { x1: 21, y1: 12, x2: 9, y2: 12 }),
+      ]);
+  },
+});
+
+export const FileCheck = defineComponent({
+  props: { size: Number, class: String },
+  setup(props) {
+    return () =>
+      h("svg", svgProps(props.size, props.class), [
+        h("path", { d: "M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" }),
+        h("polyline", { points: "14 2 14 8 20 8" }),
+        h("path", { d: "m9 15 2 2 4-4" }),
+      ]);
+  },
+});
+
+export const Globe = defineComponent({
+  props: { size: Number, class: String },
+  setup(props) {
+    return () =>
+      h("svg", svgProps(props.size, props.class), [
+        h("circle", { cx: 12, cy: 12, r: 10 }),
+        h("line", { x1: 2, y1: 12, x2: 22, y2: 12 }),
+        h("path", { d: "M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" }),
+      ]);
+  },
+});
+
+export const ShieldCheck = defineComponent({
+  props: { size: Number, class: String },
+  setup(props) {
+    return () =>
+      h("svg", svgProps(props.size, props.class), [
+        h("path", { d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" }),
+        h("path", { d: "m9 12 2 2 4-4" }),
+      ]);
+  },
+});
+
+export const Rocket = defineComponent({
+  props: { size: Number, class: String },
+  setup(props) {
+    return () =>
+      h("svg", svgProps(props.size, props.class), [
+        h("path", { d: "M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" }),
+        h("path", { d: "m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" }),
+        h("path", { d: "M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" }),
+        h("path", { d: "M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" }),
+      ]);
+  },
+});
+
+export const BarChart3 = defineComponent({
+  props: { size: Number, class: String },
+  setup(props) {
+    return () =>
+      h("svg", svgProps(props.size, props.class), [
+        h("path", { d: "M18 20V10" }),
+        h("path", { d: "M12 20V4" }),
+        h("path", { d: "M6 20v-6" }),
+      ]);
+  },
+});
+
+export const Layers = defineComponent({
+  props: { size: Number, class: String },
+  setup(props) {
+    return () =>
+      h("svg", svgProps(props.size, props.class), [
+        h("polygon", { points: "12 2 2 7 12 12 22 7 12 2" }),
+        h("polyline", { points: "2 17 12 22 22 17" }),
+        h("polyline", { points: "2 12 12 17 22 12" }),
       ]);
   },
 });

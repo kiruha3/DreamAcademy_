@@ -2,8 +2,11 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, authedProcedure } from "./trpc";
 import { db } from "./queries/connection";
-import { users, userProgramEnrollments, programProgress, certificates, notifications } from "@db/schema";
-import { eq, and, desc, count } from "drizzle-orm";
+import {
+  users, userProgramEnrollments, programProgress, certificates, notifications,
+  programVersions, courses, courseVersions, modules, moduleVersions, moduleProgress
+} from "@db/schema";
+import { eq, and, desc, count, isNull, sql, inArray } from "drizzle-orm";
 import { hashPassword, verifyPassword } from "./lib/hash";
 
 export const userRouter = router({
@@ -45,6 +48,200 @@ export const userRouter = router({
       status: user.status,
       programProgress: user.programProgress,
       certificates: user.certificates,
+    };
+  }),
+
+  dashboard: authedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.user.userId;
+
+    // User info
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+      columns: { id: true, name: true, email: true, role: true, avatar: true, status: true },
+    });
+
+    if (!user) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+    }
+
+    // Enrollments with program details
+    const enrollments = await db.query.userProgramEnrollments.findMany({
+      where: and(
+        eq(userProgramEnrollments.userId, userId),
+        isNull(userProgramEnrollments.revokedAt)
+      ),
+      with: { program: true },
+    });
+
+    const enrolledProgramIds = enrollments.map((e) => e.programId);
+
+    // Find published program versions for enrolled programs
+    const programVersionsList = enrolledProgramIds.length > 0
+      ? await db.query.programVersions.findMany({
+          where: and(
+            inArray(programVersions.programId, enrolledProgramIds),
+            eq(programVersions.status, "published")
+          ),
+        })
+      : [];
+
+    const pvByProgramId = new Map<number, typeof programVersionsList[0]>();
+    for (const pv of programVersionsList) {
+      pvByProgramId.set(pv.programId, pv);
+    }
+
+    const publishedPvIds = programVersionsList.map((pv) => pv.id);
+
+    // Find courses for published program versions
+    const coursesList = publishedPvIds.length > 0
+      ? await db.query.courses.findMany({
+          where: inArray(courses.programVersionId, publishedPvIds),
+        })
+      : [];
+
+    const courseIdToProgramId = new Map<number, number>();
+    for (const c of coursesList) {
+      const pv = pvByProgramId.get(c.programVersionId);
+      if (pv) courseIdToProgramId.set(c.id, pv.programId);
+    }
+
+    // Find published course versions
+    const courseIds = coursesList.map((c) => c.id);
+    const courseVersionsList = courseIds.length > 0
+      ? await db.query.courseVersions.findMany({
+          where: and(
+            inArray(courseVersions.courseId, courseIds),
+            eq(courseVersions.status, "published")
+          ),
+        })
+      : [];
+
+    const cvIdToProgramId = new Map<number, number>();
+    for (const cv of courseVersionsList) {
+      const programId = courseIdToProgramId.get(cv.courseId);
+      if (programId) cvIdToProgramId.set(cv.id, programId);
+    }
+
+    // Find modules for published course versions
+    const publishedCvIds = courseVersionsList.map((cv) => cv.id);
+    const modulesList = publishedCvIds.length > 0
+      ? await db.query.modules.findMany({
+          where: inArray(modules.courseVersionId, publishedCvIds),
+        })
+      : [];
+
+    // Count total modules per program
+    const totalModulesByProgram = new Map<number, number>();
+    for (const m of modulesList) {
+      const programId = cvIdToProgramId.get(m.courseVersionId);
+      if (programId) {
+        totalModulesByProgram.set(programId, (totalModulesByProgram.get(programId) ?? 0) + 1);
+      }
+    }
+
+    // Find module versions for these modules
+    const moduleIds = modulesList.map((m) => m.id);
+    const moduleVersionsList = moduleIds.length > 0
+      ? await db.query.moduleVersions.findMany({
+          where: and(
+            inArray(moduleVersions.moduleId, moduleIds),
+            eq(moduleVersions.status, "published")
+          ),
+        })
+      : [];
+
+    const mvIdToProgramId = new Map<number, number>();
+    for (const mv of moduleVersionsList) {
+      const mod = modulesList.find((m) => m.id === mv.moduleId);
+      if (mod) {
+        const programId = cvIdToProgramId.get(mod.courseVersionId);
+        if (programId) mvIdToProgramId.set(mv.id, programId);
+      }
+    }
+
+    // Find completed module progress for user
+    const publishedMvIds = moduleVersionsList.map((mv) => mv.id);
+    const completedModuleProgress = publishedMvIds.length > 0
+      ? await db.query.moduleProgress.findMany({
+          where: and(
+            eq(moduleProgress.userId, userId),
+            inArray(moduleProgress.moduleVersionId, publishedMvIds),
+            eq(moduleProgress.status, "completed")
+          ),
+        })
+      : [];
+
+    // Count completed modules per program
+    const completedModulesByProgram = new Map<number, number>();
+    for (const mp of completedModuleProgress) {
+      const programId = mvIdToProgramId.get(mp.moduleVersionId);
+      if (programId) {
+        completedModulesByProgram.set(programId, (completedModulesByProgram.get(programId) ?? 0) + 1);
+      }
+    }
+
+    // Get program progress for user
+    const programProgressList = await db.query.programProgress.findMany({
+      where: and(
+        eq(programProgress.userId, userId),
+        publishedPvIds.length > 0
+          ? inArray(programProgress.programVersionId, publishedPvIds)
+          : sql`1=0`
+      ),
+    });
+
+    const progressByProgramId = new Map<number, typeof programProgressList[0]>();
+    for (const pp of programProgressList) {
+      const pv = programVersionsList.find((p) => p.id === pp.programVersionId);
+      if (pv) progressByProgramId.set(pv.programId, pp);
+    }
+
+    // Certificates
+    const certs = await db.query.certificates.findMany({
+      where: eq(certificates.userId, userId),
+      with: {
+        programVersion: { with: { program: true } },
+      },
+      orderBy: desc(certificates.issuedAt),
+    });
+
+    // Build programs with progress
+    const programsWithProgress = enrollments.map((en) => {
+      const program = en.program;
+      const progress = progressByProgramId.get(program.id);
+
+      return {
+        program,
+        totalModules: totalModulesByProgram.get(program.id) ?? 0,
+        completedModules: completedModulesByProgram.get(program.id) ?? 0,
+        progressPercent: progress?.progressPercent ?? 0,
+        status: progress?.status ?? "not_started" as const,
+      };
+    });
+
+    const avgProgress = programsWithProgress.length > 0
+      ? Math.round(programsWithProgress.reduce((sum, p) => sum + p.progressPercent, 0) / programsWithProgress.length)
+      : 0;
+
+    const totalModulesAll = programsWithProgress.reduce((sum, p) => sum + p.totalModules, 0);
+    const completedModulesAll = programsWithProgress.reduce((sum, p) => sum + p.completedModules, 0);
+
+    return {
+      user,
+      stats: {
+        programsCount: enrollments.length,
+        totalModules: totalModulesAll,
+        completedModules: completedModulesAll,
+        certificatesCount: certs.length,
+        averageProgress: avgProgress,
+      },
+      programs: programsWithProgress,
+      certificates: certs.map((c) => ({
+        id: c.id,
+        certificateNumber: c.certificateNumber,
+        programTitle: c.programVersion?.program?.title ?? "",
+        issuedAt: c.issuedAt,
+      })),
     };
   }),
 

@@ -1,0 +1,15 @@
+node_modules
+dist
+.env
+.env.local
+*.log
+.DS_Store
+.vscode
+.idea
+coverage
+playwright-report
+test-results
+uploads
+content
+*.spec.ts
+e2e

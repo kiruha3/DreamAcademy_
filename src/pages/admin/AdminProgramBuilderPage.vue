@@ -3,10 +3,12 @@ import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { trpc } from "@/lib/trpc";
+import { useToast } from "@/composables/useToast";
 import AdminLayout from "@/components/AdminLayout.vue";
 import Icon from "@/components/Icon.vue";
 
 const route = useRoute();
+const { error: toastError, success: toastSuccess } = useToast();
 const router = useRouter();
 const queryClient = useQueryClient();
 const programId = Number(route.params.id);
@@ -39,6 +41,7 @@ const createCourseMutation = useMutation({
     queryClient.invalidateQueries({ queryKey: ["admin", "courses", "list", programId] });
     showCourseForm.value = false;
     newCourse.value = { slug: "", title: "", description: "", targetRole: "all", isMandatory: true };
+    toastSuccess("Курс создан");
   },
 });
 
@@ -55,7 +58,7 @@ const deleteCourseMutation = useMutation({
     queryClient.invalidateQueries({ queryKey: ["admin", "courses", "list", programId] });
   },
   onError: (err: any) => {
-    alert("Ошибка удаления курса: " + (err?.message || "Не удалось удалить курс"));
+    toastError("Ошибка удаления курса", err?.message || "Не удалось удалить курс");
   },
 });
 
@@ -65,9 +68,10 @@ const publishMutation = useMutation({
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "program", programId] });
     queryClient.invalidateQueries({ queryKey: ["admin", "programs", "list"] });
+    toastSuccess("Программа опубликована");
   },
   onError: (err: any) => {
-    alert("Ошибка публикации: " + (err?.message || "Не удалось опубликовать программу"));
+    toastError("Ошибка публикации", err?.message || "Не удалось опубликовать программу");
   },
 });
 
@@ -96,6 +100,7 @@ const editableProgram = computed(() => ({
   description: program.value?.description ?? "",
   targetAudience: program.value?.targetAudience ?? "all",
   hasCertification: program.value?.hasCertification ?? false,
+  coverImageUrl: program.value?.coverImageUrl ?? "",
 }));
 
 const latestVersion = computed(() => program.value?.versions?.[0]);
@@ -143,6 +148,56 @@ function handlePublish() {
 function handleNewVersion() {
   if (!confirm("Создать новую версию на основе текущей?")) return;
   newVersionMutation.mutate();
+}
+
+const coverUploadLoading = ref(false);
+
+async function handleCoverUpload(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+
+  const contentType = file.type;
+  if (!["image/jpeg", "image/png", "image/webp"].includes(contentType)) {
+    toastError("Неподдерживаемый формат", "Поддерживаются только изображения: JPEG, PNG, WEBP");
+    return;
+  }
+
+  coverUploadLoading.value = true;
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const uploadRes = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+    });
+
+    if (!uploadRes.ok) {
+      const errorData = await uploadRes.json().catch(() => ({ error: "Upload failed" }));
+      throw new Error(errorData.error || `Upload failed: ${uploadRes.status}`);
+    }
+
+    const { publicUrl } = await uploadRes.json();
+
+    await trpc.admin.program.update.mutate({
+      id: programId,
+      coverImageUrl: publicUrl,
+    });
+
+    queryClient.invalidateQueries({ queryKey: ["admin", "program", programId] });
+  } catch (err: any) {
+    toastError("Ошибка загрузки обложки", err?.message || "Неизвестная ошибка");
+  } finally {
+    coverUploadLoading.value = false;
+    input.value = "";
+  }
+}
+
+function handleRemoveCover() {
+  if (!confirm("Удалить обложку?")) return;
+  updateMutation.mutate({ id: programId, coverImageUrl: "" });
 }
 
 const targetLabels: Record<string, string> = {
@@ -231,6 +286,48 @@ const statusLabels: Record<string, { text: string; class: string }> = {
                 <input v-model="editableProgram.hasCertification" @change="handleUpdate" type="checkbox" class="rounded border-border" />
                 Есть сертификация
               </label>
+            </div>
+          </div>
+          <!-- Cover Image -->
+          <div class="sm:col-span-2">
+            <label class="mb-2 block text-sm font-medium text-text-secondary">Обложка программы</label>
+            <div class="flex items-start gap-4">
+              <div class="relative h-24 w-40 overflow-hidden rounded-lg border border-border bg-background">
+                <img
+                  v-if="program?.coverImageUrl"
+                  :src="program.coverImageUrl"
+                  alt="Cover"
+                  class="h-full w-full object-cover"
+                />
+                <div v-else class="flex h-full w-full items-center justify-center text-xs text-text-muted">
+                  Нет обложки
+                </div>
+              </div>
+              <div class="flex flex-col gap-2">
+                <label
+                  class="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-text-inverse transition hover:bg-primary-dark disabled:opacity-50"
+                  :class="{ 'opacity-50 cursor-not-allowed': coverUploadLoading }"
+                >
+                  <Icon name="Upload" class="h-4 w-4" />
+                  <span v-if="coverUploadLoading">Загрузка...</span>
+                  <span v-else>Загрузить обложку</span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    class="hidden"
+                    :disabled="coverUploadLoading"
+                    @change="handleCoverUpload"
+                  />
+                </label>
+                <button
+                  v-if="program?.coverImageUrl"
+                  @click="handleRemoveCover"
+                  class="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-text-secondary transition hover:bg-background"
+                >
+                  <Icon name="Trash2" class="h-4 w-4" />
+                  Удалить обложку
+                </button>
+              </div>
             </div>
           </div>
         </div>

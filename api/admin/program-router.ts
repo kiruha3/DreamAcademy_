@@ -184,6 +184,7 @@ export const adminProgramRouter = router({
         description: z.string().optional(),
         targetAudience: z.enum(["all", "employee", "partner", "integrator"]).optional(),
         hasCertification: z.boolean().optional(),
+        coverImageUrl: z.string().optional().or(z.literal("")),
       })
     )
     .mutation(async ({ input }) => {

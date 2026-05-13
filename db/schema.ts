@@ -132,6 +132,7 @@ export const programs = mysqlTable(
       mode: "number",
       unsigned: true,
     }).references(() => certificateTemplates.id),
+    coverImageUrl: varchar("cover_image_url", { length: 512 }),
     createdBy: bigint("created_by", { mode: "number", unsigned: true })
       .notNull()
       .references(() => users.id),

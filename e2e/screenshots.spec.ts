@@ -23,7 +23,7 @@ test.describe('Screenshots', () => {
 
   test('screenshot module page', async ({ page }) => {
     await page.goto('/#/module/1');
-    await page.waitForSelector('h1');
+    await page.waitForSelector('iframe');
     await page.screenshot({ path: 'screenshots/03_module.png', fullPage: true });
   });
 

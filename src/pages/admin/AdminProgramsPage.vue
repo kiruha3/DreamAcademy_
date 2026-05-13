@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { trpc } from "@/lib/trpc";
+import { useDebounce } from "@/composables/useDebounce";
+import { useToast } from "@/composables/useToast";
 import AdminLayout from "@/components/AdminLayout.vue";
 
 const router = useRouter();
 const queryClient = useQueryClient();
+const { success: toastSuccess } = useToast();
 
 const search = ref("");
+const debouncedSearch = useDebounce(search, 300);
 const limit = ref(20);
 const offset = ref(0);
 const showCreateModal = ref(false);
@@ -23,17 +27,13 @@ const newProgram = ref({
 });
 
 const { data, isLoading } = useQuery({
-  queryKey: ["admin", "programs", "list", search.value, offset.value],
+  queryKey: () => ["admin", "programs", "list", debouncedSearch.value, offset.value],
   queryFn: () =>
     trpc.admin.program.list.query({
-      search: search.value || undefined,
+      search: debouncedSearch.value || undefined,
       limit: limit.value,
       offset: offset.value,
     }),
-});
-
-watch([search, offset], () => {
-  queryClient.invalidateQueries({ queryKey: ["admin", "programs", "list"] });
 });
 
 const createMutation = useMutation({
@@ -42,6 +42,7 @@ const createMutation = useMutation({
     queryClient.invalidateQueries({ queryKey: ["admin", "programs", "list"] });
     showCreateModal.value = false;
     newProgram.value = { slug: "", code: "", title: "", description: "", targetAudience: "all", hasCertification: false };
+    toastSuccess("Программа создана");
   },
 });
 
@@ -49,6 +50,7 @@ const deleteMutation = useMutation({
   mutationFn: trpc.admin.program.delete.mutate,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "programs", "list"] });
+    toastSuccess("Программа удалена");
   },
 });
 

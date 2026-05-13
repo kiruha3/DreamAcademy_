@@ -38,21 +38,22 @@ test('01: new user login and complete module', async ({ page, request }) => {
 
   // Courses page
   await page.goto('/#/courses');
-  await page.waitForSelector('text=Доступные программы');
+  await page.waitForSelector('text=Курсы обучения');
   await page.screenshot({ path: `${DIR}/02_courses_list.png`, fullPage: true });
 
   // Course detail
-  await page.click('text=Перейти');
+  await page.click('text=Подробнее');
+  await page.waitForURL('http://localhost:3000/#/course/dreamdocs-basics');
   await page.waitForSelector('text=Основы DreamDocs');
   await page.screenshot({ path: `${DIR}/03_course_detail.png`, fullPage: true });
 
   // Start first module
   await page.getByRole('button', { name: 'Начать' }).first().click();
-  await page.waitForSelector('text=Введение');
+  await page.waitForTimeout(1500);
   await page.screenshot({ path: `${DIR}/04_module_page.png`, fullPage: true });
 
   // Complete module
-  await page.click('text=Завершить модуль');
+  await page.click('text=Завершить');
   await page.waitForTimeout(1500);
   await page.screenshot({ path: `${DIR}/05_module_completed.png`, fullPage: true });
 

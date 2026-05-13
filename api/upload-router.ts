@@ -9,6 +9,9 @@ const CONTENT_TYPE_LIMITS: Record<string, { maxSize: number; folder: string }> =
   "application/pdf": { maxSize: 10 * 1024 * 1024, folder: "pdf" },
   "application/zip": { maxSize: 50 * 1024 * 1024, folder: "zip" },
   "application/x-zip-compressed": { maxSize: 50 * 1024 * 1024, folder: "zip" },
+  "image/jpeg": { maxSize: 5 * 1024 * 1024, folder: "images" },
+  "image/png": { maxSize: 5 * 1024 * 1024, folder: "images" },
+  "image/webp": { maxSize: 5 * 1024 * 1024, folder: "images" },
 };
 
 export const uploadRouter = router({

@@ -16,8 +16,11 @@ import {
   programs,
   userProgramEnrollments,
   users,
+  certificates,
+  programProgress,
 } from "@db/schema";
 import { eq, and, desc, count } from "drizzle-orm";
+import { nanoid } from "nanoid";
 
 export const assessmentRouter = router({
   getById: authedProcedure
@@ -237,6 +240,16 @@ export const assessmentRouter = router({
         })
         .where(eq(assessmentAttempts.id, attempt.id));
 
+      // Auto-issue certificate if applicable
+      if (isPassed && assessmentRecord) {
+        await tryAutoIssueCertificate({
+          userId: ctx.user.userId,
+          assessment: assessmentRecord,
+          score,
+          maxScore: maxPoints,
+        });
+      }
+
       return {
         attemptId: attempt.id,
         score,
@@ -313,6 +326,82 @@ export const assessmentRouter = router({
       };
     }),
 });
+
+async function tryAutoIssueCertificate({
+  userId,
+  assessment,
+  score,
+  maxScore,
+}: {
+  userId: number;
+  assessment: typeof assessments.$inferSelect;
+  score: number;
+  maxScore: number;
+}) {
+  if (!assessment.assessmentType || (assessment.assessmentType !== "final" && assessment.assessmentType !== "certification")) {
+    return;
+  }
+
+  // Resolve programVersionId
+  let programVersionId: number | null = null;
+
+  if (assessment.moduleVersionId) {
+    const mv = await db.query.moduleVersions.findFirst({
+      where: eq(moduleVersions.id, assessment.moduleVersionId),
+    });
+    const mod = mv ? await db.query.modules.findFirst({ where: eq(modules.id, mv.moduleId) }) : null;
+    const cv = mod ? await db.query.courseVersions.findFirst({ where: eq(courseVersions.id, mod.courseVersionId) }) : null;
+    const course = cv ? await db.query.courses.findFirst({ where: eq(courses.id, cv.courseId) }) : null;
+    programVersionId = course?.programVersionId ?? null;
+  } else if (assessment.courseVersionId) {
+    const cv = await db.query.courseVersions.findFirst({ where: eq(courseVersions.id, assessment.courseVersionId) });
+    const course = cv ? await db.query.courses.findFirst({ where: eq(courses.id, cv.courseId) }) : null;
+    programVersionId = course?.programVersionId ?? null;
+  }
+
+  if (!programVersionId) return;
+
+  const pv = await db.query.programVersions.findFirst({
+    where: eq(programVersions.id, programVersionId),
+  });
+  if (!pv) return;
+
+  const program = await db.query.programs.findFirst({
+    where: eq(programs.id, pv.programId),
+  });
+  if (!program || !program.hasCertification) return;
+
+  // Check that program progress is completed (all modules done)
+  const pp = await db.query.programProgress.findFirst({
+    where: and(
+      eq(programProgress.userId, userId),
+      eq(programProgress.programVersionId, programVersionId)
+    ),
+  });
+  if (!pp || pp.status !== "completed") return;
+
+  // Check certificate not already issued
+  const existing = await db.query.certificates.findFirst({
+    where: and(
+      eq(certificates.userId, userId),
+      eq(certificates.programVersionId, programVersionId)
+    ),
+  });
+  if (existing) return;
+
+  const certificateNumber = `DD-${nanoid(8).toUpperCase()}`;
+  const verificationToken = nanoid(32);
+
+  await db.insert(certificates).values({
+    userId,
+    programVersionId,
+    certificateNumber,
+    verificationToken,
+    score,
+    maxScore,
+    isManual: false,
+  });
+}
 
 async function checkAssessmentAccess(userId: number, assessment: typeof assessments.$inferSelect) {
   // If linked to module version

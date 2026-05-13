@@ -3,12 +3,15 @@ import { ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { trpc } from "@/lib/trpc";
+import { useToast } from "@/composables/useToast";
 import AdminLayout from "@/components/AdminLayout.vue";
 import Icon from "@/components/Icon.vue";
+import FallbackCover from "@/components/FallbackCover.vue";
 
 const route = useRoute();
 const router = useRouter();
 const queryClient = useQueryClient();
+const { error: toastError } = useToast();
 const courseId = Number(route.params.id);
 
 const { data: course, isLoading } = useQuery({
@@ -55,7 +58,7 @@ const deleteModuleMutation = useMutation({
     queryClient.invalidateQueries({ queryKey: ["admin", "modules", "list", courseId] });
   },
   onError: (err: any) => {
-    alert("Ошибка удаления модуля: " + (err?.message || "Не удалось удалить модуль"));
+    toastError("Ошибка удаления модуля", err?.message || "Не удалось удалить модуль");
   },
 });
 
@@ -130,10 +133,59 @@ const editableCourse = computed(() => ({
   description: course.value?.description ?? "",
   targetRole: course.value?.targetRole ?? "all",
   isMandatory: course.value?.isMandatory ?? true,
+  image: course.value?.image ?? "",
 }));
 
 function handleUpdate() {
   updateMutation.mutate(editableCourse.value);
+}
+
+async function handleCoverUpload(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+
+  const contentType = file.type;
+  if (!["image/jpeg", "image/png", "image/webp"].includes(contentType)) {
+    toastError("Неподдерживаемый формат", "Поддерживаются только изображения: JPEG, PNG, WEBP");
+    return;
+  }
+
+  coverUploadLoading.value = true;
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const uploadRes = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+    });
+
+    if (!uploadRes.ok) {
+      const errorData = await uploadRes.json().catch(() => ({ error: "Upload failed" }));
+      throw new Error(errorData.error || `Upload failed: ${uploadRes.status}`);
+    }
+
+    const { publicUrl } = await uploadRes.json();
+
+    await trpc.admin.course.update.mutate({
+      id: courseId,
+      image: publicUrl,
+    });
+
+    queryClient.invalidateQueries({ queryKey: ["admin", "course", courseId] });
+  } catch (err: any) {
+    toastError("Ошибка загрузки обложки", err?.message || "Неизвестная ошибка");
+  } finally {
+    coverUploadLoading.value = false;
+    input.value = "";
+  }
+}
+
+function handleRemoveCover() {
+  if (!confirm("Удалить обложку?")) return;
+  updateMutation.mutate({ id: courseId, image: "" });
 }
 
 function handleCreateModule() {
@@ -171,7 +223,7 @@ const deleteAssessmentMutation = useMutation({
     queryClient.invalidateQueries({ queryKey: ["admin", "assessments", "course", courseId] });
   },
   onError: (err: any) => {
-    alert("Ошибка удаления теста: " + (err?.message || "Не удалось удалить тест"));
+    toastError("Ошибка удаления теста", err?.message || "Не удалось удалить тест");
   },
 });
 
@@ -234,6 +286,46 @@ const typeLabels: Record<string, string> = {
                 Обязательный
               </label>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cover Image -->
+      <div class="rounded-xl border border-border bg-surface p-6 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold text-foreground">Обложка курса</h2>
+        <div class="flex items-start gap-4">
+          <div class="relative h-24 w-40 overflow-hidden rounded-lg border border-border bg-background">
+            <img
+              v-if="course?.image"
+              :src="course.image"
+              alt="Cover"
+              class="h-full w-full object-cover"
+            />
+            <div v-else class="flex h-full w-full items-center justify-center text-xs text-text-muted">
+              Нет обложки
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-text-secondary transition hover:bg-background">
+              <Icon name="Upload" class="h-4 w-4" />
+              {{ coverUploadLoading ? "Загрузка..." : "Загрузить обложку" }}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                class="hidden"
+                :disabled="coverUploadLoading"
+                @change="handleCoverUpload"
+              />
+            </label>
+            <button
+              v-if="course?.image"
+              @click="handleRemoveCover"
+              class="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-text-secondary transition hover:bg-background"
+            >
+              <Icon name="Trash2" class="h-4 w-4" />
+              Удалить обложку
+            </button>
+            <p class="text-xs text-text-muted">JPEG, PNG, WEBP. Макс. 5 МБ.</p>
           </div>
         </div>
       </div>

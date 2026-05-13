@@ -1,21 +1,41 @@
 import { Hono } from "hono";
 import { trpcServer } from "@hono/trpc-server";
 import { readFile } from "fs/promises";
+import { serveStatic } from "@hono/node-server/serve-static";
 import { appRouter } from "./router";
 import { createContext } from "./context";
 import { setupStatic } from "./lib/vite";
 import { env } from "./lib/env";
 import { getUserFromCookie, getUserFromHeader } from "./lib/auth";
 import { registerHtmlZipUpload } from "./html-zip-upload";
+import { registerLocalUpload } from "./upload-local";
+import { registerCertificatePdf } from "./certificate-pdf";
+import { sql } from "drizzle-orm";
 
 const app = new Hono();
+
+// Local file upload endpoint (multipart, not tRPC)
+registerLocalUpload(app);
 
 // HTML ZIP upload endpoint (multipart, not tRPC)
 registerHtmlZipUpload(app);
 
-// Health check
+// Certificate PDF download endpoint
+registerCertificatePdf(app);
+
+// Health checks
 app.get("/health", (c) => {
   return c.json({ status: "ok", env: env.NODE_ENV });
+});
+
+app.get("/health/db", async (c) => {
+  try {
+    const { db } = await import("./queries/connection");
+    await db.execute(sql`SELECT 1`);
+    return c.json({ status: "ok", database: "connected" });
+  } catch (err: any) {
+    return c.json({ status: "error", database: "disconnected", message: err?.message }, 503);
+  }
 });
 
 // tRPC endpoint with auth
@@ -45,6 +65,12 @@ app.use(
 // Static files in production
 if (env.NODE_ENV === "production") {
   setupStatic(app);
+}
+
+// Serve uploaded files in dev mode (before SPA fallback)
+if (env.NODE_ENV === "development") {
+  app.use("/uploads/*", serveStatic({ root: "./public" }));
+  app.use("/content/*", serveStatic({ root: "./public" }));
 }
 
 // SPA fallback for dev mode — serve index.html for all non-API routes

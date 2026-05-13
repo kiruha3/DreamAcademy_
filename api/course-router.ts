@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { router, authedProcedure } from "./trpc";
+import { router, optionalAuthedProcedure, authedProcedure } from "./trpc";
 import { db } from "./queries/connection";
 import {
   programs,
@@ -16,7 +16,7 @@ import {
 import { eq, and, inArray, isNull } from "drizzle-orm";
 
 export const courseRouter = router({
-  list: authedProcedure.query(async ({ ctx }) => {
+  list: optionalAuthedProcedure.query(async ({ ctx }) => {
     const publishedVersions = await db.query.programVersions.findMany({
       where: eq(programVersions.status, "published"),
       with: { program: true },
@@ -32,24 +32,33 @@ export const courseRouter = router({
       }
     }
 
-    // Get user enrollments
-    const enrollments = await db.query.userProgramEnrollments.findMany({
-      where: and(
-        eq(userProgramEnrollments.userId, ctx.user.userId),
-        isNull(userProgramEnrollments.revokedAt)
-      ),
-    });
-    const enrolledProgramIds = new Set(enrollments.map((e) => e.programId));
+    const isAdmin = ctx.user?.role === "admin" || ctx.user?.role === "superadmin";
+    const userId = ctx.user?.userId;
 
-    const isAdmin = ctx.user.role === "admin" || ctx.user.role === "superadmin";
+    // Get user enrollments if authenticated
+    let enrolledProgramIds = new Set<number>();
+    if (userId) {
+      const enrollments = await db.query.userProgramEnrollments.findMany({
+        where: and(
+          eq(userProgramEnrollments.userId, userId),
+          isNull(userProgramEnrollments.revokedAt)
+        ),
+      });
+      enrolledProgramIds = new Set(enrollments.map((e) => e.programId));
+    }
 
     const items = [...latestByProgram.values()]
       .filter((pv) => {
         if (isAdmin) return true;
+        // For guests: show only public_visible programs (targetAudience === "all")
+        if (!userId) {
+          return pv.program.targetAudience === "all";
+        }
+        // For authenticated users: show assigned programs matching role
         const target = pv.program.targetAudience;
         return (
           enrolledProgramIds.has(pv.program.id) &&
-          (target === "all" || target === ctx.user.role)
+          (target === "all" || target === ctx.user!.role)
         );
       })
       .map((pv) => ({
@@ -59,6 +68,7 @@ export const courseRouter = router({
         description: pv.program.description,
         targetAudience: pv.program.targetAudience,
         hasCertification: pv.program.hasCertification,
+        coverImageUrl: pv.program.coverImageUrl,
         versionId: pv.id,
         versionNumber: pv.versionNumber,
       }));

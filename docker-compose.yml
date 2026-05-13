@@ -1,22 +1,42 @@
-version: "3.8"
+version: '3.8'
 
 services:
-  mysql:
-    image: mysql:8
-    container_name: dreamdocs_mysql
+  app:
+    build: .
+    ports:
+      - "3000:3000"
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: dreamdocs_academy
-      MYSQL_USER: dreamdocs
-      MYSQL_PASSWORD: dreamdocs123
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=mysql://academy:academy_pass@db:3306/dreamdocs_academy
+      - APP_ID=dreamdocs-academy
+      - APP_SECRET=${APP_SECRET}
+      - OWNER_UNION_ID=${OWNER_UNION_ID}
+      - S3_REGION=${S3_REGION}
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_BUCKET=${S3_BUCKET}
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}
+      - S3_PUBLIC_URL=${S3_PUBLIC_URL}
+    depends_on:
+      - db
+    volumes:
+      - uploads:/app/public/uploads
+      - content:/app/public/content
+
+  db:
+    image: mysql:8
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_pass
+      - MYSQL_DATABASE=dreamdocs_academy
+      - MYSQL_USER=academy
+      - MYSQL_PASSWORD=academy_pass
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
 
 volumes:
   mysql_data:
+  uploads:
+  content:

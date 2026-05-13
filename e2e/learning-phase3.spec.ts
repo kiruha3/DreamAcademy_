@@ -9,6 +9,40 @@ async function getAdminToken(request: any): Promise<string> {
   return loginData.result.data.json.token;
 }
 
+async function createTestUser(request: any, adminToken: string) {
+  const ts = Date.now();
+  const email = `learntest${ts}@example.com`;
+  const password = 'testpass123';
+
+  const createRes = await request.post('/api/trpc/admin.user.create', {
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+    data: JSON.stringify({ json: { name: 'Learn Test', email, password, role: 'employee' } })
+  });
+  const createData = await createRes.json();
+  if (!createData.result) {
+    console.error('createUser response:', JSON.stringify(createData));
+    throw new Error('Failed to create user: ' + JSON.stringify(createData));
+  }
+  const userId = createData.result.data.json.id;
+
+  await request.post('/api/trpc/admin.user.assignProgram', {
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+    data: JSON.stringify({ json: { userId, programId: 1 } })
+  });
+
+  const newLoginRes = await request.post('/api/trpc/auth.login', {
+    headers: { 'Content-Type': 'application/json' },
+    data: JSON.stringify({ json: { email, password } })
+  });
+  const newLoginData = await newLoginRes.json();
+  return {
+    id: createData.result.data.json.id,
+    email,
+    password,
+    token: newLoginData.result.data.json.token
+  };
+}
+
 async function getOrCreateUser(request: any, adminToken: string, email: string, password: string): Promise<{ id: number; token: string }> {
   const loginRes = await request.post('/api/trpc/auth.login', {
     headers: { 'Content-Type': 'application/json' },
@@ -40,11 +74,16 @@ async function getOrCreateUser(request: any, adminToken: string, email: string, 
 }
 
 test.describe('Phase 3 — Learning Completion', () => {
-  test('test beforeunload warning during active attempt', async ({ context }) => {
+  test('test beforeunload warning during active attempt', async ({ browser, request }) => {
+    const adminToken = await getAdminToken(request);
+    const { email, password } = await createTestUser(request, adminToken);
+
+    const context = await browser.newContext();
     const page = await context.newPage();
+
     await page.goto('/#/login');
-    await page.fill('input[type="email"]', 'admin@dreamdocs.ru');
-    await page.fill('input[type="password"]', 'admin123');
+    await page.fill('input[type="email"]', email);
+    await page.fill('input[type="password"]', password);
     await page.click('button[type="submit"]');
     await page.waitForURL('http://localhost:3000/#/');
 
@@ -58,6 +97,7 @@ test.describe('Phase 3 — Learning Completion', () => {
     const dialog = await dialogPromise;
 
     expect(dialog.type()).toBe('beforeunload');
+    await context.close();
   });
 
   test('user sees only enrolled programs', async ({ browser }) => {
