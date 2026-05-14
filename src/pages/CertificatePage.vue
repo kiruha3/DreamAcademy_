@@ -38,7 +38,7 @@ function formatDate(date: string | null) {
 
           <div class="relative">
             <div class="text-lg font-medium uppercase tracking-widest text-warning">
-              DreamDocs Academy
+              DreamAcademy
             </div>
             <h1 class="mt-4 text-2xl font-bold text-foreground sm:text-4xl">Сертификат</h1>
             <p class="mt-2 text-lg text-text-secondary">

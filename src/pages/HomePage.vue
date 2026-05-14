@@ -89,15 +89,15 @@ const steps = ["Программа", "Курс", "Модуль", "Тест", "С
         <h1
           class="text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl"
         >
-          DreamDocs Academy
+          DreamAcademy
         </h1>
         <p class="mx-auto mt-6 max-w-2xl text-lg text-white/70">
-          Обучение работе с продуктом DreamDocs: от базовых навыков до
+          Обучение работе с продуктом DreamAcademy: от базовых навыков до
           профессиональной сертификации.
         </p>
         <p class="mx-auto mt-3 max-w-2xl text-base text-white/50">
           Изучайте продукт, проходите программы, сдавайте тесты и получайте
-          сертификаты, подтверждающие знание DreamDocs.
+          сертификаты, подтверждающие знание DreamAcademy.
         </p>
         <div class="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
           <button

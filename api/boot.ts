@@ -76,7 +76,11 @@ if (env.NODE_ENV === "development") {
 // SPA fallback for dev mode — serve index.html for all non-API routes
 if (env.NODE_ENV === "development") {
   app.use("*", async (c) => {
-    // API 404s are handled above; if we reach here, no route matched
+    // Skip static files (Vite serves these from public/)
+    const path = c.req.path;
+    if (path.includes(".")) {
+      return c.notFound();
+    }
     const html = await readFile("./index.html", "utf-8");
     return c.html(html);
   });

@@ -1,4 +1,4 @@
-# DreamDocs Academy
+# DreamAcademy
 
 Учебная платформа (LMS) для обучения пользователей продукту DreamDocs.
 
@@ -11,6 +11,34 @@
 
 ## Быстрый старт
 
+### Вариант 1: Makefile (Linux/macOS/WSL)
+
+```bash
+# Полная установка с нуля (npm install, БД, миграции, seed)
+make setup
+
+# Запуск dev-сервера (порт 3000)
+make dev
+
+# Полный стек через Docker Compose
+make docker-up
+```
+
+### Вариант 2: PowerShell (Windows)
+
+```powershell
+# Полная установка с нуля
+.\setup.ps1 setup
+
+# Запуск dev-сервера
+.\setup.ps1 dev
+
+# Полный стек через Docker Compose
+.\setup.ps1 docker-up
+```
+
+### Вариант 3: Вручную
+
 ```bash
 # Установка зависимостей
 npm install
@@ -19,8 +47,14 @@ npm install
 cp .env.example .env
 # Отредактируй .env — укажи DATABASE_URL, APP_SECRET и другие переменные
 
+# Запуск MySQL (если через Docker)
+docker-compose up -d db
+
 # Применение миграций
 npm run db:migrate
+
+# Seed данных
+npx tsx db/seed.ts
 
 # Запуск dev-сервера (порт 3000)
 npm run dev
@@ -42,6 +76,25 @@ npm run start
 # E2E тесты
 npx playwright test
 ```
+
+## Доступные команды
+
+| Команда | Описание |
+|---|---|
+| `make setup` / `.\setup.ps1 setup` | Полная установка с нуля |
+| `make dev` / `.\setup.ps1 dev` | Запуск dev-сервера |
+| `make build` / `.\setup.ps1 build` | Production сборка |
+| `make start` / `.\setup.ps1 start` | Запуск production |
+| `make db-up` / `.\setup.ps1 db-up` | Запуск MySQL в Docker |
+| `make db-down` / `.\setup.ps1 db-down` | Остановка MySQL |
+| `make db-migrate` / `.\setup.ps1 db-migrate` | Применение миграций |
+| `make db-seed` / `.\setup.ps1 db-seed` | Seed демо-данных |
+| `make db-reset` / `.\setup.ps1 db-reset` | Полный сброс БД |
+| `make docker-up` / `.\setup.ps1 docker-up` | Запуск через Docker Compose |
+| `make docker-down` / `.\setup.ps1 docker-down` | Остановка Docker Compose |
+| `make test` / `.\setup.ps1 test` | E2E тесты Playwright |
+| `make lint` / `.\setup.ps1 lint` | Проверка TypeScript |
+| `make clean` / `.\setup.ps1 clean` | Очистка (node_modules, dist, volumes) |
 
 ## Docker
 

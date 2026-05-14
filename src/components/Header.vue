@@ -19,9 +19,8 @@ async function handleLogout() {
   <header class="relative bg-navy">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
       <!-- Logo -->
-      <RouterLink to="/" class="flex items-center gap-2 text-xl font-bold text-white" @click="mobileMenuOpen = false">
-        <span class="text-primary">DreamDocs</span>
-        <span class="font-light text-white/90">Academy</span>
+      <RouterLink to="/" class="flex items-center" @click="mobileMenuOpen = false">
+        <img src="/DreamAcademy_white.svg" alt="DreamAcademy" class="h-7" />
       </RouterLink>
 
       <!-- Desktop Navigation -->

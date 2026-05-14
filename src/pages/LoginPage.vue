@@ -88,7 +88,7 @@ async function handleInvitation() {
   <div class="flex min-h-screen items-center justify-center bg-background px-4">
     <div class="w-full max-w-md rounded-xl border border-border bg-surface p-8 shadow-sm">
       <div class="mb-6 text-center">
-        <h1 class="text-2xl font-bold text-foreground">DreamDocs Academy</h1>
+        <h1 class="text-2xl font-bold text-foreground">DreamAcademy</h1>
         <p class="mt-2 text-sm text-text-muted">Войдите или активируйте приглашение</p>
       </div>
 
