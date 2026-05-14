@@ -102,33 +102,37 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from) => {
   const auth = useAuthStore();
 
-  // If auth state is not loaded yet, try to fetch user synchronously from localStorage
-  // (Pinia store may not be initialized in beforeEach on first load)
-  const hasToken = !!localStorage.getItem("dreamdocs_auth");
-  const isAuthenticated = auth.user !== null || hasToken;
+  const needsSession =
+    Boolean(to.meta.requiresAuth) ||
+    Boolean(to.meta.requiresAdmin) ||
+    Boolean(to.meta.guestOnly);
+
+  if (needsSession && auth.user === null) {
+    await auth.fetchUser();
+  }
+
+  const isAuthenticated = auth.user !== null;
 
   if (to.meta.guestOnly && isAuthenticated) {
-    return next("/");
+    return { path: "/" };
   }
 
   if (to.meta.requiresAuth && !isAuthenticated) {
-    return next("/login");
+    return { path: "/login" };
   }
 
   if (to.meta.requiresAdmin) {
     const isAdmin = auth.user?.role === "admin" || auth.user?.role === "superadmin";
-    if (!isAdmin && !hasToken) {
-      return next("/login");
+    if (!isAuthenticated) {
+      return { path: "/login" };
     }
     if (!isAdmin) {
-      return next("/forbidden");
+      return { path: "/forbidden" };
     }
   }
-
-  next();
 });
 
 export default router;

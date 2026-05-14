@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { router, adminProcedure, superAdminProcedure } from "../trpc";
+import { router, adminProcedure } from "../trpc";
 import { db } from "../queries/connection";
 import { users, userProgramEnrollments, programs, certificates } from "@db/schema";
 import { eq, and, like, or, desc, count } from "drizzle-orm";
@@ -311,7 +311,8 @@ export const adminUserRouter = router({
     };
   }),
 
-  dashboard: superAdminProcedure.query(async () => {
+  /** Сводка для админ-панели — та же зона доступа, что и `list` / `stats`. */
+  dashboard: adminProcedure.query(async () => {
     const [userCount] = await db.select({ count: count() }).from(users);
     const [activeCount] = await db
       .select({ count: count() })

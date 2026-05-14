@@ -3,6 +3,7 @@ import { createPinia } from "pinia";
 import { VueQueryPlugin, QueryClient, QueryCache, MutationCache } from "@tanstack/vue-query";
 import App from "./App.vue";
 import router from "./router";
+import { useAuthStore } from "@/stores/auth";
 import "./index.css";
 
 function isUnauthorizedError(error: any): boolean {
@@ -45,10 +46,16 @@ const queryClient = new QueryClient({
   },
 });
 
-const app = createApp(App);
+async function bootstrap() {
+  const app = createApp(App);
+  app.use(createPinia());
 
-app.use(createPinia());
-app.use(router);
-app.use(VueQueryPlugin, { queryClient });
+  const auth = useAuthStore();
+  await auth.fetchUser();
 
-app.mount("#app");
+  app.use(router);
+  app.use(VueQueryPlugin, { queryClient });
+  app.mount("#app");
+}
+
+bootstrap();

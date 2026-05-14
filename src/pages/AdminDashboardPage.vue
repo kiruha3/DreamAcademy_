@@ -7,13 +7,15 @@ import { useDebounce } from "@/composables/useDebounce";
 import AdminLayout from "@/components/AdminLayout.vue";
 import Icon from "@/components/Icon.vue";
 import StatCard from "@/components/StatCard.vue";
+import { useAuthStore } from "@/stores/auth";
 
 const router = useRouter();
+const auth = useAuthStore();
 const search = ref("");
 const debouncedSearch = useDebounce(search, 300);
 
 const { data: dashboard, isLoading } = useQuery({
-  queryKey: ["superadmin", "dashboard"],
+  queryKey: ["admin", "dashboard", auth.user?.role],
   queryFn: () => trpc.admin.user.dashboard.query(),
 });
 
@@ -74,9 +76,15 @@ const filteredUsers = computed(() => {
         <div class="flex items-center gap-3">
           <Icon name="Crown" class="h-6 w-6 text-primary" />
           <div>
-            <h1 class="text-2xl font-bold">Панель суперадминистратора</h1>
+            <h1 class="text-2xl font-bold">
+              {{
+                auth.isSuperAdmin
+                  ? "Панель суперадминистратора"
+                  : "Панель администратора"
+              }}
+            </h1>
             <p class="mt-1 text-sm text-white/60">
-              Управление пользователями и мониторинг системы
+              Участники, программы и сводная статистика
             </p>
           </div>
         </div>

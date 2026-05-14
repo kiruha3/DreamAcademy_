@@ -14,6 +14,7 @@ export interface User {
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<User | null>(null);
   const isLoading = ref(false);
+  let fetchUserInFlight: Promise<void> | null = null;
 
   const isAdmin = computed(() =>
     ["admin", "superadmin"].includes(user.value?.role ?? "")
@@ -22,18 +23,28 @@ export const useAuthStore = defineStore("auth", () => {
   const isSuperAdmin = computed(() => user.value?.role === "superadmin");
 
   async function fetchUser() {
-    isLoading.value = true;
-    try {
-      const me = await trpc.auth.me.query();
-      user.value = me;
-      if (!me) {
+    if (fetchUserInFlight) {
+      return fetchUserInFlight;
+    }
+    fetchUserInFlight = (async () => {
+      isLoading.value = true;
+      try {
+        const me = await trpc.auth.me.query();
+        user.value = me;
+        if (!me) {
+          localStorage.removeItem("dreamdocs_auth");
+        }
+      } catch {
+        user.value = null;
         localStorage.removeItem("dreamdocs_auth");
+      } finally {
+        isLoading.value = false;
       }
-    } catch {
-      user.value = null;
-      localStorage.removeItem("dreamdocs_auth");
+    })();
+    try {
+      await fetchUserInFlight;
     } finally {
-      isLoading.value = false;
+      fetchUserInFlight = null;
     }
   }
 
