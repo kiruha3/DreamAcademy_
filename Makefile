@@ -100,7 +100,7 @@ _server-install-local:
 	npx tsx db/seed.ts
 
 	@echo "→ Starting application container..."
-	docker-compose -f docker-compose.local-db.yml up -d app
+	docker compose -f docker-compose.local-db.yml up -d app
 
 	@echo ""
 	@echo "╔══════════════════════════════════════════════════════════════════════╗"
@@ -111,11 +111,11 @@ _server-install-local:
 # Private target: Docker DB (full stack with db container)
 _server-install-docker:
 	@echo "→ Starting Docker stack (app + db)..."
-	docker-compose -f docker-compose.yml up -d db
+	docker compose -f docker-compose.yml up -d db
 
 	@echo "→ Waiting for Docker MySQL..."
 	@for i in 1 2 3 4 5 6 7 8 9 10; do \
-		if docker-compose -f docker-compose.yml exec -T db mysqladmin ping -h localhost --silent 2>/dev/null; then \
+		if docker compose -f docker-compose.yml exec -T db mysqladmin ping -h localhost --silent 2>/dev/null; then \
 			echo "   ✅ Docker MySQL ready"; \
 			exit 0; \
 		fi; \
@@ -132,7 +132,7 @@ _server-install-docker:
 	npx tsx db/seed.ts
 
 	@echo "→ Starting application container..."
-	docker-compose -f docker-compose.yml up -d app
+	docker compose -f docker-compose.yml up -d app
 
 	@echo ""
 	@echo "╔══════════════════════════════════════════════════════════════════════╗"
@@ -174,13 +174,13 @@ deploy: check-docker
 
 _deploy-local:
 	@echo "→ Stopping old app container..."
-	docker-compose -f docker-compose.local-db.yml down app
+	docker compose -f docker-compose.local-db.yml down app
 
 	@echo "→ Running migrations..."
 	npx drizzle-kit migrate
 
 	@echo "→ Starting updated app..."
-	docker-compose -f docker-compose.local-db.yml up -d app
+	docker compose -f docker-compose.local-db.yml up -d app
 
 	@echo "→ Cleaning old images..."
 	docker system prune -f
@@ -193,14 +193,14 @@ _deploy-local:
 
 _deploy-docker:
 	@echo "→ Stopping old stack..."
-	docker-compose -f docker-compose.yml down
+	docker compose -f docker-compose.yml down
 
 	@echo "→ Starting updated stack..."
-	docker-compose -f docker-compose.yml up -d db
+	docker compose -f docker-compose.yml up -d db
 
 	@echo "→ Waiting for MySQL..."
 	@for i in 1 2 3 4 5 6 7 8 9 10; do \
-		if docker-compose -f docker-compose.yml exec -T db mysqladmin ping -h localhost --silent 2>/dev/null; then \
+		if docker compose -f docker-compose.yml exec -T db mysqladmin ping -h localhost --silent 2>/dev/null; then \
 			echo "   ✅ MySQL ready"; \
 			exit 0; \
 		fi; \
@@ -214,7 +214,7 @@ _deploy-docker:
 	npx drizzle-kit migrate
 
 	@echo "→ Starting app..."
-	docker-compose -f docker-compose.yml up -d app
+	docker compose -f docker-compose.yml up -d app
 
 	@echo "→ Cleaning old images..."
 	docker system prune -f
@@ -242,11 +242,11 @@ setup: check-node check-docker
 			echo "Local MySQL detected"; \
 		else \
 			echo "Starting Docker DB for dev..."; \
-			docker-compose -f docker-compose.yml up -d db; \
+			docker compose -f docker-compose.yml up -d db; \
 			$(MAKE) wait-mysql; \
 		fi; \
 	else \
-		docker-compose -f docker-compose.yml up -d db; \
+		docker compose -f docker-compose.yml up -d db; \
 		$(MAKE) wait-mysql; \
 	fi
 	npm run db:migrate
@@ -270,17 +270,17 @@ docker-up:
 	@DB_URL=$$(grep '^DATABASE_URL=' .env 2>/dev/null | cut -d '=' -f2- | tr -d '"' | tr -d "'"); \
 	if echo "$$DB_URL" | grep -qE '(localhost|127\.0\.0\.1)'; then \
 		if timeout 3 bash -c 'cat < /dev/null > /dev/tcp/localhost/3306' 2>/dev/null; then \
-			docker-compose -f docker-compose.local-db.yml up -d; \
+			docker compose -f docker-compose.local-db.yml up -d; \
 		else \
-			docker-compose -f docker-compose.yml up -d; \
+			docker compose -f docker-compose.yml up -d; \
 		fi; \
 	else \
-		docker-compose -f docker-compose.yml up -d; \
+		docker compose -f docker-compose.yml up -d; \
 	fi
 
 docker-down:
-	@docker-compose -f docker-compose.yml down 2>/dev/null || true
-	@docker-compose -f docker-compose.local-db.yml down 2>/dev/null || true
+	@docker compose -f docker-compose.yml down 2>/dev/null || true
+	@docker compose -f docker-compose.local-db.yml down 2>/dev/null || true
 
 # ───────────────────────────────────────────────────────────────
 #  DATABASE
@@ -299,11 +299,11 @@ db-reset:
 		if timeout 3 bash -c 'cat < /dev/null > /dev/tcp/localhost/3306' 2>/dev/null; then \
 			echo "Local MySQL detected — manual reset required"; \
 		else \
-			docker-compose -f docker-compose.yml up -d db; \
+			docker compose -f docker-compose.yml up -d db; \
 			$(MAKE) wait-mysql; \
 		fi; \
 	else \
-		docker-compose -f docker-compose.yml up -d db; \
+		docker compose -f docker-compose.yml up -d db; \
 		$(MAKE) wait-mysql; \
 	fi
 	$(MAKE) db-migrate
@@ -311,7 +311,7 @@ db-reset:
 
 wait-mysql:
 	@for i in 1 2 3 4 5 6 7 8 9 10; do \
-		if docker-compose -f docker-compose.yml exec -T db mysqladmin ping -h localhost --silent 2>/dev/null; then \
+		if docker compose -f docker-compose.yml exec -T db mysqladmin ping -h localhost --silent 2>/dev/null; then \
 			echo "MySQL is ready!"; \
 			exit 0; \
 		fi; \
@@ -328,30 +328,30 @@ logs:
 	@DB_URL=$$(grep '^DATABASE_URL=' .env 2>/dev/null | cut -d '=' -f2- | tr -d '"' | tr -d "'"); \
 	if echo "$$DB_URL" | grep -qE '(localhost|127\.0\.0\.1)'; then \
 		if timeout 3 bash -c 'cat < /dev/null > /dev/tcp/localhost/3306' 2>/dev/null; then \
-			docker-compose -f docker-compose.local-db.yml logs -f; \
+			docker compose -f docker-compose.local-db.yml logs -f; \
 		else \
-			docker-compose -f docker-compose.yml logs -f; \
+			docker compose -f docker-compose.yml logs -f; \
 		fi; \
 	else \
-		docker-compose -f docker-compose.yml logs -f; \
+		docker compose -f docker-compose.yml logs -f; \
 	fi
 
 logs-app:
 	@DB_URL=$$(grep '^DATABASE_URL=' .env 2>/dev/null | cut -d '=' -f2- | tr -d '"' | tr -d "'"); \
 	if echo "$$DB_URL" | grep -qE '(localhost|127\.0\.0\.1)'; then \
 		if timeout 3 bash -c 'cat < /dev/null > /dev/tcp/localhost/3306' 2>/dev/null; then \
-			docker-compose -f docker-compose.local-db.yml logs -f app; \
+			docker compose -f docker-compose.local-db.yml logs -f app; \
 		else \
-			docker-compose -f docker-compose.yml logs -f app; \
+			docker compose -f docker-compose.yml logs -f app; \
 		fi; \
 	else \
-		docker-compose -f docker-compose.yml logs -f app; \
+		docker compose -f docker-compose.yml logs -f app; \
 	fi
 
 status:
 	@echo "=== Containers ==="
-	@docker-compose -f docker-compose.yml ps 2>/dev/null || true
-	@docker-compose -f docker-compose.local-db.yml ps 2>/dev/null || true
+	@docker compose -f docker-compose.yml ps 2>/dev/null || true
+	@docker compose -f docker-compose.local-db.yml ps 2>/dev/null || true
 	@echo ""
 	@echo "=== Disk ==="
 	docker system df
@@ -370,8 +370,8 @@ lint: check-node
 # ───────────────────────────────────────────────────────────────
 clean:
 	rm -rf node_modules dist
-	@docker-compose -f docker-compose.yml down -v 2>/dev/null || true
-	@docker-compose -f docker-compose.local-db.yml down -v 2>/dev/null || true
+	@docker compose -f docker-compose.yml down -v 2>/dev/null || true
+	@docker compose -f docker-compose.local-db.yml down -v 2>/dev/null || true
 	@echo "Cleaned."
 
 check-node:
