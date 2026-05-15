@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { serve } from "@hono/node-server";
 import { trpcServer } from "@hono/trpc-server";
 import { readFile } from "fs/promises";
 import { serveStatic } from "@hono/node-server/serve-static";
@@ -94,5 +95,13 @@ const shutdown = (signal: string) => {
 
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
+
+const port = env.PORT ? parseInt(env.PORT) : 3000;
+serve({
+  fetch: app.fetch,
+  port,
+});
+
+console.log(`Server running on http://0.0.0.0:${port}`);
 
 export default app;
