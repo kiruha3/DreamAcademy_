@@ -125,11 +125,11 @@ _server-install-docker:
 	echo "❌ MySQL did not become ready. Check: make logs-db"; \
 	exit 1
 
-	@echo "→ Running migrations..."
-	npx drizzle-kit migrate
+	@echo "→ Running migrations inside container..."
+	docker compose -f docker-compose.yml run --rm app npx drizzle-kit migrate
 
-	@echo "→ Seeding database..."
-	npx tsx db/seed.ts
+	@echo "→ Seeding database inside container..."
+	docker compose -f docker-compose.yml run --rm app npx tsx db/seed.ts
 
 	@echo "→ Starting application container..."
 	docker compose -f docker-compose.yml up -d app
@@ -210,8 +210,8 @@ _deploy-docker:
 	echo "❌ MySQL timeout"; \
 	exit 1
 
-	@echo "→ Running migrations..."
-	npx drizzle-kit migrate
+	@echo "→ Running migrations inside container..."
+	docker compose -f docker-compose.yml run --rm app npx drizzle-kit migrate
 
 	@echo "→ Starting app..."
 	docker compose -f docker-compose.yml up -d app
