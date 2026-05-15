@@ -37,7 +37,7 @@ db/check-*.ts
 
 # Browser-agent screenshots
 screenshots/
-*.png
+
 
 # Playwright
 test-results/
