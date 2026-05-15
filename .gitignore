@@ -2,7 +2,8 @@
 node_modules/
 yarn.lock
 pnpm-lock.yaml
-public/
+public/content/
+public/uploads/
 # Build outputs
 dist/
 *.tsbuildinfo
