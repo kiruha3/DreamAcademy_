@@ -9,7 +9,89 @@
 - **Testing:** Playwright (E2E)
 - **PDF:** Playwright + qrcode
 
-## Быстрый старт
+---
+
+## 🚀 Деплой на сервер (Production)
+
+### Требования
+
+- **Docker** (с поддержкой `docker compose` V2)
+- **Node.js 20+** (для сборки на хосте)
+- **Git**
+
+### 1. Подготовка
+
+```bash
+git clone https://github.com/kiruha3/DreamAcademy_.git
+cd DreamAcademy_
+cp .env.example .env
+nano .env  # заполни обязательные переменные
+```
+
+**Обязательные переменные в `.env`:**
+
+| Переменная | Описание | Пример |
+|---|---|---|
+| `APP_SECRET` | Секрет для JWT (мин. 32 символа) | `openssl rand -hex 32` |
+| `DATABASE_URL` | URL подключения к MySQL | `mysql://academy:academy_pass@db:3306/dreamdocs_academy` |
+| `APP_ID` | Идентификатор приложения | `dreamdocs-academy` |
+| `OWNER_UNION_ID` | ID первого суперадмина | `superadmin-001` |
+| `S3_REGION` | Регион S3-хранилища | `ru-central1` |
+| `S3_ENDPOINT` | Endpoint S3 | `https://storage.yandexcloud.net` |
+| `S3_BUCKET` | Имя бакета | `dreamacademy` |
+| `S3_ACCESS_KEY_ID` | Access Key S3 | `YCAJE...` |
+| `S3_SECRET_ACCESS_KEY` | Secret Key S3 | `YCMBE...` |
+| `S3_PUBLIC_URL` | Публичный URL бакета | `https://storage.yandexcloud.net/dreamacademy` |
+
+> **База данных:** Если `DATABASE_URL` указывает на `localhost` и порт 3306 отвечает — Makefile использует локальную MySQL. Иначе — поднимает MySQL автоматически в Docker.
+
+### 2. Первая установка (одна команда)
+
+```bash
+make server-install
+```
+
+Это автоматически:
+1. Установит зависимости (`npm ci`)
+2. Соберёт приложение (`npm run build`)
+3. Поднимет MySQL (Docker или локальную)
+4. Применит миграции
+5. Засеет демо-данные (суперадмин + тестовый курс)
+6. Запустит приложение на порту **3000**
+
+### 3. Обновление (последующие деплои)
+
+```bash
+make deploy
+```
+
+Это подтянет изменения из git, пересоберёт и перезапустит контейнеры.
+
+### 4. Проверка
+
+```bash
+# Статус контейнеров
+make status
+
+# Логи
+make logs
+
+# Проверка отклика локально
+curl http://localhost:3000/health
+```
+
+Приложение будет доступно по адресу:
+```
+http://<IP_СЕРВЕРА>:3000
+```
+
+**Данные для входа (после seed):**
+- Email: `admin@dreamdocs.ru`
+- Пароль: `admin123`
+
+---
+
+## 💻 Локальная разработка
 
 ### Вариант 1: Makefile (Linux/macOS/WSL)
 
@@ -19,9 +101,6 @@ make setup
 
 # Запуск dev-сервера (порт 3000)
 make dev
-
-# Полный стек через Docker Compose
-make docker-up
 ```
 
 ### Вариант 2: PowerShell (Windows)
@@ -32,9 +111,6 @@ make docker-up
 
 # Запуск dev-сервера
 .\setup.ps1 dev
-
-# Полный стек через Docker Compose
-.\setup.ps1 docker-up
 ```
 
 ### Вариант 3: Вручную
@@ -48,7 +124,7 @@ cp .env.example .env
 # Отредактируй .env — укажи DATABASE_URL, APP_SECRET и другие переменные
 
 # Запуск MySQL (если через Docker)
-docker-compose up -d db
+docker compose up -d db
 
 # Применение миграций
 npm run db:migrate
@@ -60,7 +136,9 @@ npx tsx db/seed.ts
 npm run dev
 ```
 
-## Сборка и запуск
+---
+
+## 🔧 Сборка и запуск
 
 ```bash
 # Сборка
@@ -70,60 +148,112 @@ npm run build
 npm run start
 ```
 
-## Тестирование
+---
+
+## 🧪 Тестирование
 
 ```bash
 # E2E тесты
 npx playwright test
 ```
 
-## Доступные команды
+---
+
+## 📋 Доступные команды Makefile
 
 | Команда | Описание |
 |---|---|
-| `make setup` / `.\setup.ps1 setup` | Полная установка с нуля |
-| `make dev` / `.\setup.ps1 dev` | Запуск dev-сервера |
-| `make build` / `.\setup.ps1 build` | Production сборка |
-| `make start` / `.\setup.ps1 start` | Запуск production |
-| `make db-up` / `.\setup.ps1 db-up` | Запуск MySQL в Docker |
-| `make db-down` / `.\setup.ps1 db-down` | Остановка MySQL |
-| `make db-migrate` / `.\setup.ps1 db-migrate` | Применение миграций |
-| `make db-seed` / `.\setup.ps1 db-seed` | Seed демо-данных |
-| `make db-reset` / `.\setup.ps1 db-reset` | Полный сброс БД |
-| `make docker-up` / `.\setup.ps1 docker-up` | Запуск через Docker Compose |
-| `make docker-down` / `.\setup.ps1 docker-down` | Остановка Docker Compose |
-| `make test` / `.\setup.ps1 test` | E2E тесты Playwright |
-| `make lint` / `.\setup.ps1 lint` | Проверка TypeScript |
-| `make clean` / `.\setup.ps1 clean` | Очистка (node_modules, dist, volumes) |
+| `make server-install` | Первая установка на сервере (Docker, миграции, seed) |
+| `make deploy` | Обновление приложения (git pull, build, restart) |
+| `make setup` | Полная установка для локальной разработки |
+| `make dev` | Запуск dev-сервера |
+| `make build` | Production сборка |
+| `make start` | Запуск production (требует предварительной сборки) |
+| `make db-up` | Запуск MySQL в Docker |
+| `make db-down` | Остановка MySQL |
+| `make db-migrate` | Применение миграций |
+| `make db-seed` | Seed демо-данных |
+| `make db-reset` | Полный сброс БД |
+| `make docker-up` | Запуск через Docker Compose |
+| `make docker-down` | Остановка Docker Compose |
+| `make logs` | Просмотр логов контейнеров |
+| `make status` | Статус контейнеров |
+| `make test` | E2E тесты Playwright |
+| `make lint` | Проверка TypeScript |
+| `make clean` | Очистка (node_modules, dist, volumes) |
 
-## Docker
+---
+
+## 🐳 Docker
 
 ```bash
 # Запуск с Docker Compose
-docker-compose up --build
+docker compose up --build -d
+
+# Остановка
+docker compose down
 ```
 
-## Переменные окружения
+---
 
-| Переменная | Описание |
-|---|---|
-| `DATABASE_URL` | URL подключения к MySQL |
-| `APP_SECRET` | Секрет для JWT (мин. 32 символа) |
-| `APP_ID` | Идентификатор приложения |
-| `OWNER_UNION_ID` | ID владельца |
-| `S3_*` | Настройки S3 (опционально) |
+## 🔐 Переменные окружения
 
-## Структура проекта
+| Переменная | Описание | Обязательная |
+|---|---|---|
+| `DATABASE_URL` | URL подключения к MySQL | ✅ |
+| `APP_SECRET` | Секрет для JWT (мин. 32 символа) | ✅ |
+| `APP_ID` | Идентификатор приложения | ✅ |
+| `OWNER_UNION_ID` | ID владельца / первого суперадмина | ✅ |
+| `S3_REGION` | Регион S3-хранилища | ✅ |
+| `S3_ENDPOINT` | Endpoint S3 | ✅ |
+| `S3_BUCKET` | Имя S3-бакета | ✅ |
+| `S3_ACCESS_KEY_ID` | Access Key S3 | ✅ |
+| `S3_SECRET_ACCESS_KEY` | Secret Key S3 | ✅ |
+| `S3_PUBLIC_URL` | Публичный URL бакета | ✅ |
+| `KIMI_AUTH_URL` | URL интеграции Kimi (опционально) | ❌ |
+| `KIMI_OPEN_URL` | URL открытого API Kimi (опционально) | ❌ |
+
+---
+
+## 📁 Структура проекта
 
 ```
-├── api/           # Backend (Hono + tRPC)
-├── db/            # Схема БД и миграции Drizzle
-├── src/           # Frontend (Vue 3)
-├── e2e/           # E2E тесты Playwright
-├── public/        # Статические файлы
-└── contracts/     # Общие типы
+├── api/                  # Backend (Hono + tRPC)
+│   ├── boot.ts           # Точка входа сервера
+│   ├── router.ts         # Корневой роутер tRPC
+│   ├── auth-router.ts    # Аутентификация
+│   ├── lib/              # Утилиты (env, s3, cookies)
+│   └── queries/          # Запросы к БД
+├── db/                   # Схема БД и миграции Drizzle
+│   ├── schema.ts         # Описание таблиц
+│   ├── relations.ts      # Связи между таблицами
+│   ├── seed.ts           # Начальные данные
+│   └── migrations/       # SQL-миграции
+├── src/                  # Frontend (Vue 3)
+│   ├── pages/            # Страницы приложения
+│   ├── components/       # Vue-компоненты
+│   ├── stores/           # Pinia-сторы
+│   └── router/           # Vue Router
+├── e2e/                  # E2E тесты Playwright
+├── public/               # Статические файлы (логотип, favicon)
+├── contracts/            # Общие типы и константы
+├── docker-compose.yml    # Docker Compose (app + db)
+├── docker-compose.local-db.yml  # Docker Compose (только app)
+├── Makefile              # Команды для деплоя и разработки
+└── package.json          # Зависимости и скрипты
 ```
 
-## Лицензия
+---
+
+## 🛡️ Безопасность
+
+- Пароли хранятся в виде bcrypt-хешей
+- JWT-токены подписываются `APP_SECRET`
+- S3-ключи не попадают в клиентский бандл
+- HTML ZIP открывается в sandboxed iframe
+
+---
+
+## 📄 Лицензия
 
 Proprietary — DreamDocs
