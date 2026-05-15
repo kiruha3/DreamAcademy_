@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build && esbuild api/boot.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/boot.js --external:mysql2 --external:playwright-core --external:playwright --external:dotenv",
+    "build": "vite build && esbuild api/boot.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/boot.js --external:mysql2 --external:playwright-core --external:playwright --banner:js='import { createRequire } from \"module\";const require=createRequire(import.meta.url);'",
     "start": "node dist/boot.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
